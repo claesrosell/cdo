@@ -26,6 +26,8 @@ import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
 import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo.Type;
 
 import org.eclipse.net4j.util.collection.MoveableList;
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
+import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
@@ -44,7 +46,7 @@ import java.util.Set;
 /**
  * @author Eike Stepper
  */
-public class LoadRevisionsIndication extends CDOServerReadIndication
+public class LoadRevisionsIndication extends CDOServerReadIndicationWithMonitoring
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionsIndication.class);
 
@@ -68,8 +70,11 @@ public class LoadRevisionsIndication extends CDOServerReadIndication
   }
 
   @Override
-  protected void indicating(CDODataInput in) throws IOException
+  protected void indicating(CDODataInput in, OMMonitor monitor) throws IOException
   {
+    monitor.begin();
+    Async async = monitor.forkAsync();
+
     branchPoint = in.readCDOBranchPoint();
     if (TRACER.isEnabled())
     {
@@ -131,11 +136,17 @@ public class LoadRevisionsIndication extends CDOServerReadIndication
         fetchRules.put(fetchRule.getEClass(), fetchRule);
       }
     }
+
+    async.stop();
+    monitor.done();
   }
 
   @Override
-  protected void responding(CDODataOutput out) throws IOException
+  protected void responding(CDODataOutput out, OMMonitor monitor) throws IOException
   {
+    monitor.begin();
+    Async async = monitor.forkAsync();
+
     List<CDORevision> additionalRevisions = new ArrayList<>();
     List<RevisionInfo> additionalRevisionInfos = new ArrayList<>();
     Set<CDOID> revisionIDs = new HashSet<>();
@@ -207,6 +218,8 @@ public class LoadRevisionsIndication extends CDOServerReadIndication
       out.writeCDOID(info.getID());
       info.writeResult(out, referenceChunk, branchPoint);
     }
+    async.stop();
+    monitor.done();
   }
 
   private RevisionInfo getRevisionInfo(CDOID id)

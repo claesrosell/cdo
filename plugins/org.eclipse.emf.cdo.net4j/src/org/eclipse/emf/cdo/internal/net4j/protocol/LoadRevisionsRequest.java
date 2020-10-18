@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012, 2014-2017, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2012, 2014-2017 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy;
 import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
 import org.eclipse.emf.cdo.view.CDOFetchRuleManager;
 
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class LoadRevisionsRequest extends CDOClientRequest<List<RevisionInfo>>
+public class LoadRevisionsRequest extends CDOClientRequestWithMonitoring<List<RevisionInfo>>
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionsRequest.class);
 
@@ -55,7 +56,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<RevisionInfo>>
   }
 
   @Override
-  protected void requesting(CDODataOutput out) throws IOException
+  protected void requesting(CDODataOutput out, OMMonitor monitor) throws IOException
   {
     if (TRACER.isEnabled())
     {
@@ -91,6 +92,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<RevisionInfo>>
     }
 
     Collection<CDOID> ids = new ArrayList<>(size);
+    monitor.begin(size);
     for (RevisionInfo info : infos)
     {
       if (TRACER.isEnabled())
@@ -100,6 +102,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<RevisionInfo>>
 
       info.write(out);
       ids.add(info.getID());
+      monitor.worked();
     }
 
     CDOFetchRuleManager ruleManager = getSession().getFetchRuleManager();
@@ -124,26 +127,37 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<RevisionInfo>>
         fetchRule.write(out);
       }
     }
+
+    monitor.done();
   }
 
   @Override
-  protected List<RevisionInfo> confirming(CDODataInput in) throws IOException
+  protected List<RevisionInfo> confirming(CDODataInput in, OMMonitor monitor) throws IOException
   {
+    monitor.begin(2);
+
     int size = infos.size();
     if (TRACER.isEnabled())
     {
       TRACER.format("Reading {0} revisions", size); //$NON-NLS-1$
     }
 
+    OMMonitor revisionMonitor = monitor.fork();
+    revisionMonitor.begin(size);
     for (RevisionInfo info : infos)
     {
       info.readResult(in);
+      revisionMonitor.worked();
     }
+    revisionMonitor.done();
 
     List<RevisionInfo> additionalRevisionInfos = null;
     int additionalSize = in.readXInt();
     if (additionalSize != 0)
     {
+      OMMonitor additionalRevisionsMonitor = monitor.fork();
+      additionalRevisionsMonitor.begin(size);
+
       if (TRACER.isEnabled())
       {
         TRACER.format("Reading {0} additional revision infos", additionalSize); //$NON-NLS-1$
@@ -155,9 +169,17 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<RevisionInfo>>
         RevisionInfo info = RevisionInfo.read(in, branchPoint);
         info.readResult(in);
         additionalRevisionInfos.add(info);
+        additionalRevisionsMonitor.worked();
       }
+
+      additionalRevisionsMonitor.done();
+    }
+    else
+    {
+      monitor.worked();
     }
 
+    monitor.done();
     return additionalRevisionInfos;
   }
 
