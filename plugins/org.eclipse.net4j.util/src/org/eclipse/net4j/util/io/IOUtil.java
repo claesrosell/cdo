@@ -17,6 +17,8 @@ import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.om.OMPlatform;
 
+import org.eclipse.core.runtime.URIUtil;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -44,6 +46,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -221,7 +224,14 @@ public final class IOUtil
    */
   public static URL newURL(String url) throws MalformedURLException
   {
-    return URI.create(url).toURL();
+    try
+    {
+      return URIUtil.fromString(url).toURL();
+    }
+    catch (URISyntaxException ex)
+    {
+      throw new MalformedURLException(ex.getMessage());
+    }
   }
 
   /**
