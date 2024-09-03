@@ -534,10 +534,9 @@ public class OCLQueryHandler implements IQueryHandler
       //$FALL-THROUGH$
     }
 
-    // TODO Change the newInstance() call to the newer newInstanceAbstract() call once OCL has shipped a new build.
     // See https://www.eclipse.org/lists/cross-project-issues-dev/msg19930.html
     // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=416470
-    return OCL.newInstance(envFactory);
+    return OCL.newInstanceAbstract(envFactory);
   }
 
   public static void prepareContainer(IManagedContainer container)
