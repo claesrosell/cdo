@@ -176,19 +176,26 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     builder.append(sourceField);
     builder.append("=?"); //$NON-NLS-1$
     sqlReadCurrentIndexOffset = builder.toString();
+  }
 
-    DBStore store = (DBStore)getMappingStrategy().getStore();
-    if (store.getRepository().isSupportingUnits())
+  private String getSelectUnitEntries()
+  {
+    if (sqlSelectUnitEntries == null)
     {
-      UnitMappingTable units = store.getUnitMappingTable();
+      DBStore store = (DBStore)getMappingStrategy().getStore();
+      if (store.getRepository().isSupportingUnits())
+      {
+        UnitMappingTable units = store.getUnitMappingTable();
 
-      sqlSelectUnitEntries = "SELECT " + (CHECK_UNIT_ENTRIES ? classMapping.idField + ", " : "") + "cdo_list." + valueField + //
-          " FROM " + table + " cdo_list, " + classMapping.table + ", " + units + //
-          " WHERE " + units.elem() + "=" + classMapping.idField + //
-          " AND " + classMapping.idField + "=cdo_list." + sourceField + //
-          " AND " + units.unit() + "=?" + //
-          " ORDER BY cdo_list." + sourceField + ", cdo_list." + indexField;
+        sqlSelectUnitEntries = "SELECT " + (CHECK_UNIT_ENTRIES ? classMapping.idField + ", " : "") + "cdo_list." + valueField + //
+            " FROM " + table + " cdo_list, " + classMapping.table + ", " + units + //
+            " WHERE " + units.elem() + "=" + classMapping.idField + //
+            " AND " + classMapping.idField + "=cdo_list." + sourceField + //
+            " AND " + units.unit() + "=?" + //
+            " ORDER BY cdo_list." + sourceField + ", cdo_list." + indexField;
+      }
     }
+    return sqlSelectUnitEntries;
   }
 
   @Override
@@ -329,7 +336,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
   @Override
   public ResultSet queryUnitEntries(IDBStoreAccessor accessor, IIDHandler idHandler, long timeStamp, CDOID rootID) throws SQLException
   {
-    IDBPreparedStatement stmt = accessor.getDBConnection().prepareStatement(sqlSelectUnitEntries, ReuseProbability.MEDIUM);
+    IDBPreparedStatement stmt = accessor.getDBConnection().prepareStatement(getSelectUnitEntries(), ReuseProbability.MEDIUM);
     idHandler.setCDOID(stmt, 1, rootID);
     return stmt.executeQuery();
   }
