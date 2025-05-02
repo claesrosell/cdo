@@ -24,6 +24,7 @@ import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingBatchingSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IListMappingUnitSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.db.mapping.ListDeltaWork;
@@ -59,9 +60,11 @@ import java.util.Set;
  * @author Eike Stepper
  * @since 2.0
  */
-public class NonAuditListTableMapping extends AbstractListTableMapping implements IListMappingDeltaSupport, IListMappingBatchingSupport
+public class NonAuditListTableMapping extends AbstractListTableMapping implements IListMappingDeltaSupport, IListMappingUnitSupport, IListMappingBatchingSupport
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, NonAuditListTableMapping.class);
+
+  private static final boolean CHECK_UNIT_ENTRIES = OMPlatform.INSTANCE.isProperty("org.eclipse.emf.cdo.server.db.checkUnitEntries");
 
   private String sqlClear;
 
@@ -82,6 +85,10 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
   private String sqlShiftUpIndex;
 
   private String sqlShiftUpFinalIndex;
+
+  private String sqlSelectUnitEntries;
+  
+  private AbstractHorizontalClassMapping classMapping;
 
   public NonAuditListTableMapping(IMappingStrategy mappingStrategy, EClass eClass, EStructuralFeature feature)
   {
@@ -194,6 +201,25 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     builder.append(sourceField);
     builder.append("=?"); //$NON-NLS-1$
     sqlReadCurrentIndexOffset = builder.toString();
+
+    DBStore store = (DBStore)getMappingStrategy().getStore();
+    if (store.getRepository().isSupportingUnits())
+    {
+      UnitMappingTable units = store.getUnitMappingTable();
+
+      sqlSelectUnitEntries = "SELECT " + (CHECK_UNIT_ENTRIES ? classMapping.idField + ", " : "") + "cdo_list." + valueField + //
+          " FROM " + table + " cdo_list, " + classMapping.table + ", " + units + //
+          " WHERE " + units.elem() + "=" + classMapping.idField + //
+          " AND " + classMapping.idField + "=cdo_list." + sourceField + //
+          " AND " + units.unit() + "=?" + //
+          " ORDER BY cdo_list." + sourceField + ", cdo_list." + indexField;
+    }
+  }
+
+  @Override
+  public void setClassMapping(IClassMapping classMapping)
+  {
+    this.classMapping = (AbstractHorizontalClassMapping)classMapping;
   }
 
   @Override
@@ -567,6 +593,36 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
   }
 
+  @Override
+  public ResultSet queryUnitEntries(IDBStoreAccessor accessor, IIDHandler idHandler, long timeStamp, CDOID rootID) throws SQLException
+  {
+    IDBPreparedStatement stmt = accessor.getDBConnection().prepareStatement(sqlSelectUnitEntries, ReuseProbability.MEDIUM);
+    idHandler.setCDOID(stmt, 1, rootID);
+    return stmt.executeQuery();
+  }
+
+  @Override
+  public void readUnitEntries(ResultSet resultSet, IIDHandler idHandler, CDOID id, MoveableList<Object> list) throws SQLException
+  {
+    int size = list.size();
+    for (int i = 0; i < size; i++)
+    {
+      resultSet.next();
+
+      if (CHECK_UNIT_ENTRIES)
+      {
+        CDOID checkID = idHandler.getCDOID(resultSet, 1);
+        if (checkID != id)
+        {
+          throw new IllegalStateException("Result set does not deliver expected result");
+        }
+      }
+
+      Object value = getTypeMapping().readValue(resultSet);
+      list.set(i, value);
+    }
+  }
+  
   private final class NonAuditDeltaBatch
   {
     private final IDBStoreAccessor accessor;
