@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013, 2015, 2016, 2018-2021, 2023, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2013, 2015, 2016, 2018-2021, 2023-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,6 +55,8 @@ public final class StringUtil
   public static final String FALSE = Boolean.FALSE.toString();
 
   private static final int NO_SEPARATOR = -1;
+
+  private static final Pattern STRING_CONVERTER_PATTERN = Pattern.compile("\\$\\$\\$([^(]+)\\((.*)\\)\\$\\$\\$");
 
   private StringUtil()
   {
@@ -1030,8 +1032,6 @@ public final class StringUtil
       subStrings[subStringsIndex] = string.substring(start, end);
     }
   }
-
-  private static final Pattern STRING_CONVERTER_PATTERN = Pattern.compile("\\$\\$\\$([^(]+)\\((.*)\\)\\$\\$\\$");
 
   /**
    * @since 3.1

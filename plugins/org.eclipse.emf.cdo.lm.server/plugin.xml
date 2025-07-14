@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <!--
-  Copyright (c) 2022, 2023 Eike Stepper (Loehne, Germany) and others.
+  Copyright (c) 2022, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -14,7 +14,8 @@
 <plugin>
 
    <extension point="org.eclipse.net4j.util.productGroups">
-      <productGroup id="org.eclipse.emf.cdo.lm.server.lifecycleManagers" name="%productGroup.name"/>
+      <productGroup id="org.eclipse.emf.cdo.lm.server.lifecycleManagers" name="%lifecycleManager.productGroup.name"/>
+      <productGroup id="org.eclipse.emf.cdo.lm.server.baselineBranchPointProviders" name="%baselineBranchPointProviders.productGroup.name"/>
    </extension>
 
    <extension point="org.eclipse.net4j.util.factories">

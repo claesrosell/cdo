@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012, 2015, 2020, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2012, 2015, 2020, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.common.commit;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
@@ -71,6 +72,30 @@ public interface CDOChangeSetData extends CDOChangeKindProvider
    * {@link CDOBranchVersion#UNSPECIFIED_VERSION unspecified}.
    */
   public List<CDOIDAndVersion> getDetachedObjects();
+
+  /**
+   * @since 4.26
+   */
+  public default CDOIDAndVersion getNewObject(CDOID id)
+  {
+    return CDOIDUtil.getKey(getNewObjects(), id);
+  }
+
+  /**
+   * @since 4.26
+   */
+  public default CDORevisionKey getChangedObject(CDOID id)
+  {
+    return CDOIDUtil.getKey(getChangedObjects(), id);
+  }
+
+  /**
+   * @since 4.26
+   */
+  public default CDOIDAndVersion getDetachedObject(CDOID id)
+  {
+    return CDOIDUtil.getKey(getDetachedObjects(), id);
+  }
 
   /**
    * Returns a list of ids denoting which revisions have been added, changed, or revised in the context of a commit operation.

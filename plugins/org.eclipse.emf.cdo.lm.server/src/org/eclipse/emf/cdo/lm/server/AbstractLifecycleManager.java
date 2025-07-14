@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,29 +11,39 @@
 package org.eclipse.emf.cdo.lm.server;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPointRef;
 import org.eclipse.emf.cdo.common.branch.CDOBranchRef;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionProvider;
+import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORemoveFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOException;
+import org.eclipse.emf.cdo.common.util.CDOFingerPrinter;
+import org.eclipse.emf.cdo.common.util.CDOFingerPrinter.FingerPrint;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.etypes.EtypesPackage;
 import org.eclipse.emf.cdo.lm.FloatingBaseline;
 import org.eclipse.emf.cdo.lm.LMFactory;
 import org.eclipse.emf.cdo.lm.LMPackage;
 import org.eclipse.emf.cdo.lm.Module;
 import org.eclipse.emf.cdo.lm.ModuleType;
 import org.eclipse.emf.cdo.lm.Process;
+import org.eclipse.emf.cdo.lm.Stream;
 import org.eclipse.emf.cdo.lm.System;
 import org.eclipse.emf.cdo.lm.impl.SystemImpl;
 import org.eclipse.emf.cdo.lm.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.lm.modules.ModuleDefinition;
 import org.eclipse.emf.cdo.lm.modules.ModulesFactory;
+import org.eclipse.emf.cdo.lm.util.LMEntities;
+import org.eclipse.emf.cdo.lm.util.LMFingerPrintAnnotation;
 import org.eclipse.emf.cdo.net4j.CDONet4jSession;
 import org.eclipse.emf.cdo.net4j.CDONet4jSessionConfiguration;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
@@ -44,12 +54,14 @@ import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IRepository.WriteAccessHandler;
 import org.eclipse.emf.cdo.server.IRepositoryProtector;
 import org.eclipse.emf.cdo.server.IStoreAccessor.CommitContext;
+import org.eclipse.emf.cdo.server.IStoreAccessor.CommitContext.ModificationContext;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.security.SecurityManagerUtil;
 import org.eclipse.emf.cdo.server.spi.security.InternalSecurityManager;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
+import org.eclipse.emf.cdo.spi.common.revision.ManagedRevisionProvider;
 import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
@@ -64,8 +76,10 @@ import org.eclipse.net4j.util.HexUtil;
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.RunnableWithException;
+import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.ConcurrentArray;
+import org.eclipse.net4j.util.collection.Entity.SingleNamespaceStore;
 import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.container.IManagedContainer;
 import org.eclipse.net4j.util.event.Event;
@@ -173,6 +187,10 @@ public abstract class AbstractLifecycleManager extends Lifecycle implements LMPa
 
   private Consumer<Process> processInitializer;
 
+  private CDOFingerPrinter fingerPrinter;
+
+  private boolean autoFingerPrinting;
+
   private boolean credentialsBasedLogin;
 
   @ExcludeFromDump
@@ -233,7 +251,42 @@ public abstract class AbstractLifecycleManager extends Lifecycle implements LMPa
 
   public void setProcessInitializer(Consumer<Process> processInitializer)
   {
+    checkInactive();
     this.processInitializer = processInitializer;
+  }
+
+  /**
+   * @since 1.7
+   */
+  public CDOFingerPrinter getFingerPrinter()
+  {
+    return fingerPrinter;
+  }
+
+  /**
+   * @since 1.7
+   */
+  public void setFingerPrinter(CDOFingerPrinter fingerPrinter)
+  {
+    checkInactive();
+    this.fingerPrinter = fingerPrinter;
+  }
+
+  /**
+   * @since 1.7
+   */
+  public boolean isAutoFingerPrinting()
+  {
+    return autoFingerPrinting;
+  }
+
+  /**
+   * @since 1.7
+   */
+  public void setAutoFingerPrinting(boolean autoFingerPrinting)
+  {
+    checkInactive();
+    this.autoFingerPrinting = autoFingerPrinting;
   }
 
   /**
@@ -249,6 +302,7 @@ public abstract class AbstractLifecycleManager extends Lifecycle implements LMPa
    */
   public void setCredentialsBasedLogin(boolean credentialsBasedLogin)
   {
+    checkInactive();
     this.credentialsBasedLogin = credentialsBasedLogin;
   }
 
@@ -265,6 +319,7 @@ public abstract class AbstractLifecycleManager extends Lifecycle implements LMPa
    */
   public void setCredentials(IPasswordCredentials credentials)
   {
+    checkInactive();
     this.credentials = credentials;
   }
 
@@ -282,6 +337,14 @@ public abstract class AbstractLifecycleManager extends Lifecycle implements LMPa
   public final Map<String, InternalRepository> getModuleRepositories()
   {
     return moduleRepositories;
+  }
+
+  /**
+   * @since 1.7
+   */
+  public final CDOSession getModuleSession(Module module)
+  {
+    return getModuleSession(module.getName());
   }
 
   public final CDOSession getModuleSession(String moduleName)
@@ -389,6 +452,17 @@ public abstract class AbstractLifecycleManager extends Lifecycle implements LMPa
       addModule(moduleName, moduleTypeName);
     }
 
+    SingleNamespaceStore entityStore = new SingleNamespaceStore(LMEntities.NAMESPACE);
+    if (fingerPrinter != null)
+    {
+      entityStore.addEntity(LMEntities.FINGER_PRINTER) //
+          .property(LMEntities.FINGER_PRINTER_TYPE, fingerPrinter.getType()) //
+          .property(LMEntities.FINGER_PRINTER_PARAM, fingerPrinter.getParam()) //
+          .property(LMEntities.FINGER_PRINTER_AUTOMATIC, Boolean.toString(autoFingerPrinting)) //
+          .build();
+    }
+
+    systemRepository.addEntityStore(entityStore);
     systemRepository.addHandler(writeAccessHandler);
   }
 
@@ -605,7 +679,97 @@ public abstract class AbstractLifecycleManager extends Lifecycle implements LMPa
 
   protected void handleBaselineAddition(CommitContext commitContext, InternalCDORevision addedContent)
   {
+    if (fingerPrinter != null && autoFingerPrinting)
+    {
+      EClass eClass = addedContent.getEClass();
+      if (FIXED_BASELINE.isSuperTypeOf(eClass))
+      {
+        addFingerPrint(commitContext, addedContent);
+      }
+    }
+
     fireEvent(new NewBaselineEvent(commitContext, addedContent));
+  }
+
+  /**
+   * @since 1.7
+   */
+  protected void addFingerPrint(CommitContext commitContext, InternalCDORevision fixedBaseline)
+  {
+    ITransaction transaction = commitContext.getTransaction();
+    CDORevision streamRevision = CDORevisionUtil.getParentRevision(fixedBaseline, transaction, STREAM);
+    CDOID streamID = streamRevision.getID();
+    Stream stream = (Stream)systemView.getObject(streamID);
+
+    Module module = stream.getModule();
+    CDOSession moduleSession = getModuleSession(module);
+
+    CDOBranchPointRef branchPointRef = getBaselineBranchPoint(fixedBaseline, stream);
+    CDOBranchPoint branchPoint = branchPointRef.resolve(moduleSession.getBranchManager());
+    CDORevisionProvider revisionProvider = new ManagedRevisionProvider(moduleSession.getRevisionManager(), branchPoint);
+    CDOID rootResourceID = moduleSession.getRepositoryInfo().getRootResourceID();
+
+    FingerPrint fingerPrint = fingerPrinter.createFingerPrint(revisionProvider, rootResourceID);
+    if (fingerPrint == null)
+    {
+      return;
+    }
+
+    String value = fingerPrint.getValue();
+    if (StringUtil.isEmpty(value))
+    {
+      return;
+    }
+
+    commitContext.modify(context -> {
+      InternalCDORevision annotation = (InternalCDORevision)context.attachNewObject( //
+          fixedBaseline.getID(), EtypesPackage.Literals.MODEL_ELEMENT__ANNOTATIONS, EtypesPackage.Literals.ANNOTATION);
+      annotation.setValue(EtypesPackage.Literals.ANNOTATION__SOURCE, LMFingerPrintAnnotation.ANNOTATION_SOURCE);
+
+      addAnnotationDetail(context, annotation, LMFingerPrintAnnotation.ANNOTATION_DETAIL_VALUE, value);
+
+      long count = fingerPrint.getCount();
+      addAnnotationDetail(context, annotation, LMFingerPrintAnnotation.ANNOTATION_DETAIL_COUNT, Long.toString(count));
+
+      String param = fingerPrint.getParam();
+      addAnnotationDetail(context, annotation, LMFingerPrintAnnotation.ANNOTATION_DETAIL_PARAM, param);
+    });
+  }
+
+  private InternalCDORevision addAnnotationDetail(ModificationContext context, InternalCDORevision annotation, String key, String value)
+  {
+    InternalCDORevision detailEntry = (InternalCDORevision)context.attachNewObject( //
+        annotation.getID(), EtypesPackage.Literals.ANNOTATION__DETAILS, EtypesPackage.Literals.STRING_TO_STRING_MAP_ENTRY);
+    detailEntry.setValue(EtypesPackage.Literals.STRING_TO_STRING_MAP_ENTRY__KEY, key);
+    detailEntry.setValue(EtypesPackage.Literals.STRING_TO_STRING_MAP_ENTRY__VALUE, value);
+    return detailEntry;
+  }
+
+  private CDOBranchPointRef getBaselineBranchPoint(InternalCDORevision baseline, Stream stream)
+  {
+    EClass eClass = baseline.getEClass();
+    if (eClass == DELIVERY)
+    {
+      // Taken from DeliveryImpl.getMergeTarget().
+      return new CDOBranchPointRef((String)baseline.getValue(DELIVERY__MERGE_TARGET));
+    }
+
+    if (eClass == DROP)
+    {
+      // Taken from DropImpl.getBranchPoint().
+      return new CDOBranchPointRef((String)baseline.getValue(DROP__BRANCH_POINT));
+    }
+
+    IManagedContainer container = getContainer();
+    String name = eClass.getName();
+
+    BaselineBranchPointProvider provider = container.getElementOrNull(BaselineBranchPointProvider.Factory.PRODUCT_GROUP, name, StringUtil.EMPTY);
+    if (provider != null)
+    {
+      return provider.getBranchPoint(baseline, systemView, stream);
+    }
+
+    throw new IllegalStateException("No BaselineBranchPointProvider registered for " + name);
   }
 
   /**
@@ -1421,6 +1585,31 @@ public abstract class AbstractLifecycleManager extends Lifecycle implements LMPa
           repositoryProtector.addSecondaryRepository(moduleRepository);
         }
       }
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   * @since 1.7
+   */
+  public interface BaselineBranchPointProvider
+  {
+    public CDOBranchPointRef getBranchPoint(CDORevision baseline, CDORevisionProvider provider, Stream stream);
+
+    /**
+     * @author Eike Stepper
+     */
+    public static abstract class Factory extends org.eclipse.net4j.util.factory.Factory
+    {
+      public static final String PRODUCT_GROUP = "org.eclipse.emf.cdo.lm.server.baselineBranchPointProviders"; //$NON-NLS-1$
+
+      protected Factory(String type)
+      {
+        super(PRODUCT_GROUP, type);
+      }
+
+      @Override
+      public abstract BaselineBranchPointProvider create(String description) throws ProductCreationException;
     }
   }
 

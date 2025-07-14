@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013, 2015-2017, 2019-2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2013, 2015-2017, 2019-2022, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -799,7 +799,7 @@ public class SessionManager extends Container<ISession> implements InternalSessi
       Response response = protocol.sendAuthenticationChallenge(challenge);
       if (response == null)
       {
-        throw notAuthenticated();
+        throw authenticationCanceledByClient();
       }
 
       ByteArrayInputStream bais = new ByteArrayInputStream(authenticationServer.handleResponse(response));
@@ -863,7 +863,7 @@ public class SessionManager extends Container<ISession> implements InternalSessi
       Response response = sessionProtocol.sendCredentialsChallenge(challenge, userID, operation);
       if (response == null)
       {
-        throw notAuthenticated();
+        throw authenticationCanceledByClient();
       }
 
       ByteArrayInputStream baos = new ByteArrayInputStream(authenticationServer.handleResponse(response));
@@ -947,10 +947,10 @@ public class SessionManager extends Container<ISession> implements InternalSessi
   }
 
   @SuppressWarnings("deprecation")
-  private SecurityException notAuthenticated()
+  private SecurityException authenticationCanceledByClient()
   {
     // Existing clients may expect this deprecated exception type
-    return new org.eclipse.emf.cdo.common.util.NotAuthenticatedException();
+    return new org.eclipse.emf.cdo.common.util.NotAuthenticatedException("Authentication canceled by client");
   }
 
   /**

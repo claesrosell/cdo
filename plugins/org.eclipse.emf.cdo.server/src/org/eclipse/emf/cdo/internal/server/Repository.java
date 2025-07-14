@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDGenerator;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.lob.CDOLobHandler;
+import org.eclipse.emf.cdo.common.lob.CDOLobInfo;
 import org.eclipse.emf.cdo.common.lock.CDOLockChangeInfo;
 import org.eclipse.emf.cdo.common.lock.CDOLockChangeInfo.Operation;
 import org.eclipse.emf.cdo.common.lock.CDOLockDelta;
@@ -74,6 +75,7 @@ import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.server.StoreThreadLocal.NoSessionRegisteredException;
+import org.eclipse.emf.cdo.spi.common.CDOLobStoreImpl;
 import org.eclipse.emf.cdo.spi.common.CDOReplicationContext;
 import org.eclipse.emf.cdo.spi.common.CDOReplicationInfo;
 import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
@@ -120,7 +122,6 @@ import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.CollectionUtil;
 import org.eclipse.net4j.util.collection.Entity;
-import org.eclipse.net4j.util.collection.Entity.ComposedStore;
 import org.eclipse.net4j.util.collection.Entity.SingleNamespaceStore;
 import org.eclipse.net4j.util.collection.Entity.Store;
 import org.eclipse.net4j.util.collection.MoveableList;
@@ -174,6 +175,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -242,11 +244,15 @@ public class Repository extends Container<Object> implements InternalRepository
 
   private IDGenerationLocation idGenerationLocation;
 
+  private String lobDigestAlgorithm;
+
   private CommitInfoStorage commitInfoStorage;
 
   private long optimisticLockingTimeout = 10000L;
 
   private Entity.Store entityStore;
+
+  private Function<CDORevision, CDOID> idGenerator;
 
   private CDOTimeProvider timeProvider;
 
@@ -482,6 +488,12 @@ public class Repository extends Container<Object> implements InternalRepository
   public IDGenerationLocation getIDGenerationLocation()
   {
     return idGenerationLocation;
+  }
+
+  @Override
+  public String getLobDigestAlgorithm()
+  {
+    return lobDigestAlgorithm;
   }
 
   @Override
@@ -1293,6 +1305,25 @@ public class Repository extends Container<Object> implements InternalRepository
   }
 
   @Override
+  public void addEntityStore(Store entityStore)
+  {
+    Entity.ComposedStore composedStore;
+
+    if (this.entityStore instanceof Entity.ComposedStore)
+    {
+      composedStore = (Entity.ComposedStore)this.entityStore;
+    }
+    else
+    {
+      composedStore = new Entity.ComposedStore();
+      composedStore.addStore(this.entityStore);
+      this.entityStore = composedStore;
+    }
+
+    composedStore.addStore(entityStore);
+  }
+
+  @Override
   public CDOTimeProvider getTimeProvider()
   {
     return timeProvider;
@@ -1303,6 +1334,18 @@ public class Repository extends Container<Object> implements InternalRepository
   {
     checkInactive();
     this.timeProvider = timeProvider;
+  }
+
+  @Override
+  public Function<CDORevision, CDOID> getIDGenerator()
+  {
+    return idGenerator;
+  }
+
+  @Override
+  public void setIDGenerator(Function<CDORevision, CDOID> idGenerator)
+  {
+    this.idGenerator = idGenerator;
   }
 
   @Override
@@ -1669,6 +1712,11 @@ public class Repository extends Container<Object> implements InternalRepository
     if (CDOProtocolConstants.QUERY_LANGUAGE_XREFS.equals(language))
     {
       return new XRefsQueryHandler();
+    }
+
+    if (CDOProtocolConstants.QUERY_LANGUAGE_FINGER_PRINT.equals(language))
+    {
+      return new FingerPrintQueryHandler();
     }
 
     IStoreAccessor storeAccessor = StoreThreadLocal.getAccessor();
@@ -2279,6 +2327,12 @@ public class Repository extends Container<Object> implements InternalRepository
   }
 
   @Override
+  public void loadLob(CDOLobInfo info, Object outputStream) throws IOException
+  {
+    loadLob(info.getID(), (OutputStream)outputStream);
+  }
+
+  @Override
   public void handleRevisions(EClass eClass, CDOBranch branch, boolean exactBranch, long timeStamp, boolean exactTime, final CDORevisionHandler handler)
   {
     CDORevisionHandler wrapper = handler;
@@ -2555,6 +2609,12 @@ public class Repository extends Container<Object> implements InternalRepository
     if (idGenerationLocation == null)
     {
       idGenerationLocation = IDGenerationLocation.STORE;
+    }
+
+    lobDigestAlgorithm = properties.get(Props.ID_GENERATION_LOCATION);
+    if (StringUtil.isEmpty(lobDigestAlgorithm))
+    {
+      lobDigestAlgorithm = CDOLobStoreImpl.DEFAULT_DIGEST_ALGORITHM;
     }
 
     // COMMIT_INFO_STORAGE
@@ -3180,7 +3240,7 @@ public class Repository extends Container<Object> implements InternalRepository
 
     protected Entity.Store createEntityStore()
     {
-      ComposedStore composedStore = new Entity.ComposedStore();
+      Entity.ComposedStore composedStore = new Entity.ComposedStore();
 
       Map<String, SingleNamespaceStore> stores = new HashMap<>();
       for (Entity entity : getEntities().values())

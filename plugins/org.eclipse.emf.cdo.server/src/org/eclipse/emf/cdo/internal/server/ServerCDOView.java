@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, 2019-2021, 2023, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2016, 2019-2021, 2023-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDGenerator;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.lob.CDOBlob;
 import org.eclipse.emf.cdo.common.lob.CDOClob;
+import org.eclipse.emf.cdo.common.lob.CDOLobInfo;
 import org.eclipse.emf.cdo.common.lob.CDOLobStore;
 import org.eclipse.emf.cdo.common.lock.CDOLockChangeInfo;
 import org.eclipse.emf.cdo.common.lock.CDOLockOwner;
@@ -161,6 +162,12 @@ public class ServerCDOView extends AbstractCDOView implements org.eclipse.emf.cd
   public CDORevisionProvider getRevisionProvider()
   {
     return revisionProvider;
+  }
+
+  @Override
+  public void loadLob(CDOLobInfo info, Object outputStreamOrWriter) throws IOException
+  {
+    session.loadLob(info, outputStreamOrWriter);
   }
 
   @Override
@@ -707,6 +714,11 @@ public class ServerCDOView extends AbstractCDOView implements org.eclipse.emf.cd
       return this;
     }
 
+    public InternalRepository getRepository()
+    {
+      return repository;
+    }
+
     public InternalSession getInternalSession()
     {
       return internalSession;
@@ -1049,6 +1061,12 @@ public class ServerCDOView extends AbstractCDOView implements org.eclipse.emf.cd
     public IDGenerationLocation getIDGenerationLocation()
     {
       return repository.getIDGenerationLocation();
+    }
+
+    @Override
+    public String getLobDigestAlgorithm()
+    {
+      return repository.getLobDigestAlgorithm();
     }
 
     @Override
@@ -1582,6 +1600,12 @@ public class ServerCDOView extends AbstractCDOView implements org.eclipse.emf.cd
     public void setCollectionLoadingPolicy(CDOCollectionLoadingPolicy policy)
     {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void loadLob(CDOLobInfo info, Object outputStreamOrWriter) throws IOException
+    {
+      repository.loadLob(info, outputStreamOrWriter);
     }
 
     @Override

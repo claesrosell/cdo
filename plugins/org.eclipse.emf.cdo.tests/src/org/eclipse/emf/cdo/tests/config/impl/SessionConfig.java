@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2016, 2018-2021, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2008-2016, 2018-2021, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.emf.cdo.tests.config.impl;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
+import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
 import org.eclipse.emf.cdo.net4j.CDONet4jSession;
 import org.eclipse.emf.cdo.net4j.CDONet4jSessionConfiguration;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
@@ -158,6 +159,7 @@ public abstract class SessionConfig extends Config implements ISessionConfig
     container.setName("client");
 
     Net4jUtil.prepareContainer(container);
+    CDOCommonUtil.prepareContainer(container);
 
     container.registerFactory(new ExecutorServiceFactory()
     {
@@ -330,14 +332,14 @@ public abstract class SessionConfig extends Config implements ISessionConfig
 
   public void configureSession(CDOSession session)
   {
-    final File lobCache = getCurrentTest().getTempName("lobs_" + new Date().getTime() + "_", ".tmp");
-    session.options().setLobCache(new CDOLobStoreImpl(lobCache));
+    final File lobCacheFolder = getCurrentTest().getTempName("lobs_" + new Date().getTime() + "_", ".tmp");
+    session.options().setLobCache(new CDOLobStoreImpl(lobCacheFolder));
     session.addListener(new LifecycleEventAdapter()
     {
       @Override
       protected void onDeactivated(ILifecycle lifecycle)
       {
-        IOUtil.delete(lobCache);
+        IOUtil.delete(lobCacheFolder);
       }
     });
   }

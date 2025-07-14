@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cdoServer>
 
-  <!-- ============================================================== -->
-  <!-- See http://wiki.eclipse.org/CDO/Server_Configuration_Reference -->
-  <!-- ============================================================== -->
+  <!-- =============================================================== -->
+  <!-- See https://wiki.eclipse.org/CDO/Server_Configuration_Reference -->
+  <!-- =============================================================== -->
 
   <acceptor type="tcp" listenAddr="0.0.0.0" port="2036"/>
 
@@ -16,6 +16,7 @@
     <property name="ensureReferentialIntegrity" value="false"/>
     <property name="allowInterruptRunningQueries" value="true"/>
     <property name="idGenerationLocation" value="STORE"/>
+    <property name="lobDigestAlgorithm" value="SHA-1"/>
     <property name="commitInfoStorage" value="WITH_MERGE_SOURCE"/>
     <property name="serializeCommits" value="false"/>
     <property name="optimisticLockingTimeout" value="10000"/>
@@ -45,10 +46,10 @@
           <property name="java.naming.security.credentials" value="$USER_PW$"/>
         </environment>
         
-        <searchUser start="ou=Users,dc=example,dc=com" filter="(uid=$USER_ID$)" returnAttributes="uid" environment="bind" doc="The string substitution parameters USER_ID and USER_PW can be used"/>
+        <searchUser start="ou=Users,dc=example,dc=com" filter="(uid=$USER_ID$)" returnAttributes="uid" environment="bind" doc="The string substitution parameter USER_ID can be used"/>
         
         <loginUser environment="user" doc="The string substitution parameters USER_ID, USER_PW, USER_DN, USER_RDN, USER_PDN or USER_ATTR_* can be used">
-          <searchGroups start="ou=Groups,dc=example,dc=com" filter="(memberUid=$USER_ATTR_uid$)" returnAttributes="cn"/>
+          <searchGroups start="ou=Groups,dc=example,dc=com" filter="(memberUid=$USER_ATTR_uid$)" returnAttributes="cn" doc="The string substitution parameters USER_ID, USER_PW, USER_DN, USER_RDN, USER_PDN or USER_ATTR_* can be used"/>
         </loginUser>
       </userAuthenticator> 
     
@@ -97,7 +98,11 @@
     </entity>
     
     <lifecycleManager type="default" systemName="CDO-LM" moduleDefinitionPath="module.md">
+      <!-- Requires the "credentialsBasedLogin" attribute of the "lifecycleManager" element to be set to true. 
       <credentials userId="$$$system_property(LM_USER_ID)$$$" password="$$$system_property(LM_USER_PW)$$$"/>
+      -->
+
+      <fingerPrinter type="digest" param="SHA-512,base64" automatic="true" />
       
       <dropType name="Tag" />    
       <dropType name="Milestone" />    
@@ -115,6 +120,7 @@
         <property name="ensureReferentialIntegrity" value="false" />
         <property name="allowInterruptRunningQueries" value="true" />
         <property name="idGenerationLocation" value="STORE" />
+        <property name="lobDigestAlgorithm" value="SHA-1"/>
         <property name="serializeCommits" value="false" />
         <property name="optimisticLockingTimeout" value="10000" />
         <property name="org.eclipse.emf.cdo.server.admin.ignore" value="true" />

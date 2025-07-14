@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, 2021, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2017, 2019, 2021, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -351,9 +351,9 @@ public class Api2Html extends DefaultHandler
       out.println("<!DOCTYPE HTML>");
       out.println("<html>");
       out.println("<head>");
-      out.println("<title>API Evolution Report for CDO " + buildQualifier + "</title>");
+      out.println("<title>API Report for CDO " + buildQualifier + "</title>");
       out.println("<link rel=stylesheet type='text/css' href='api.css'>");
-      out.println("<base href='http://www.eclipse.org/cdo/images/api/'>");
+      out.println("<base href='https://eclipse.dev/cdo/images/api/'>");
       out.println("<script type='text/javascript'>");
       out.println("  function toggle(id)");
       out.println("  {");
@@ -365,8 +365,8 @@ public class Api2Html extends DefaultHandler
       out.println("</script>");
       out.println("</head>");
       out.println("<body>");
-      out.println("<h1>API Evolution Report for CDO <a href='http://www.eclipse.org/cdo/downloads/#" + buildQualifier.replace('-', '_') + "'>" + buildQualifier
-          + "</a></h1>");
+      out.println(
+          "<h1>API Report for CDO <a href='https://download.eclipse.org/modeling/emf/cdo/drops/" + buildQualifier + "'>" + buildQualifier + "</a></h1>");
 
       breaking.generate(out, "");
       out.println("<p/>");

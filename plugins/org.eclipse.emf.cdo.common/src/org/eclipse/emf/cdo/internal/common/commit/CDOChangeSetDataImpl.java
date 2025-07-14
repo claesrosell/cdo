@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, 2019, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2016, 2019, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.spi.common.commit.CDOChangeKindCache;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
+import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.StringUtil;
 
 import java.text.MessageFormat;
@@ -45,14 +46,14 @@ public class CDOChangeSetDataImpl implements CDOChangeSetData
 
   public CDOChangeSetDataImpl(List<CDOIDAndVersion> newObjects, List<CDORevisionKey> changedObjects, List<CDOIDAndVersion> detachedObjects)
   {
-    this.newObjects = newObjects;
-    this.changedObjects = changedObjects;
-    this.detachedObjects = detachedObjects;
+    this.newObjects = ObjectUtil.requireNonNullElseGet(newObjects, () -> new ArrayList<CDOIDAndVersion>());
+    this.changedObjects = ObjectUtil.requireNonNullElseGet(changedObjects, () -> new ArrayList<CDORevisionKey>());
+    this.detachedObjects = ObjectUtil.requireNonNullElseGet(detachedObjects, () -> new ArrayList<CDOIDAndVersion>());
   }
 
   public CDOChangeSetDataImpl()
   {
-    this(new ArrayList<CDOIDAndVersion>(), new ArrayList<CDORevisionKey>(), new ArrayList<CDOIDAndVersion>());
+    this(null, null, null);
   }
 
   @Override

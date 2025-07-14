@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016, 2018-2021, 2023, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2016, 2018-2021, 2023-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -66,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.function.Function;
 
 /**
  * If the meaning of this type isn't clear, there really should be more of a description here...
@@ -111,6 +112,11 @@ public interface InternalRepository extends IRepository, //
   public void setEntityStore(Entity.Store entityStore);
 
   /**
+   * @since 4.24
+   */
+  public void addEntityStore(Entity.Store entityStore);
+
+  /**
    * @since 4.6
    */
   public CDOTimeProvider getTimeProvider();
@@ -119,6 +125,16 @@ public interface InternalRepository extends IRepository, //
    * @since 4.6
    */
   public void setTimeProvider(CDOTimeProvider timeProvider);
+
+  /**
+   * @since 4.24
+   */
+  public Function<CDORevision, CDOID> getIDGenerator();
+
+  /**
+   * @since 4.24
+   */
+  public void setIDGenerator(Function<CDORevision, CDOID> idGenerator);
 
   /**
    * @since 4.1

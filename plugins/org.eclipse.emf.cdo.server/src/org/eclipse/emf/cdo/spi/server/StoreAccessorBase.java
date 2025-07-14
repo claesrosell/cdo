@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2013, 2015, 2016, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2011-2013, 2015, 2016, 2019, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ import org.eclipse.emf.cdo.internal.common.revision.CDOIDAndVersionImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
+import org.eclipse.emf.cdo.server.IStoreAccessor.NewIDSupport;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.spi.common.commit.CDOCommitInfoUtil;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
@@ -51,7 +52,7 @@ import java.util.List;
  * @author Eike Stepper
  * @since 4.0
  */
-public abstract class StoreAccessorBase extends Lifecycle implements IStoreAccessor
+public abstract class StoreAccessorBase extends Lifecycle implements NewIDSupport
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, StoreAccessorBase.class);
 
@@ -256,6 +257,12 @@ public abstract class StoreAccessorBase extends Lifecycle implements IStoreAcces
     {
       monitor.done();
     }
+  }
+
+  @Override
+  public CDOID getNewID(CDORevision revision)
+  {
+    return getNextCDOID(revision);
   }
 
   protected abstract CDOID getNextCDOID(CDORevision revision);

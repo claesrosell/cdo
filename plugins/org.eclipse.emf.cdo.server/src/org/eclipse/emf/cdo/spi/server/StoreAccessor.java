@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013, 2015, 2016, 2020, 2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2013, 2015, 2016, 2020, 2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -91,15 +91,14 @@ public abstract class StoreAccessor extends StoreAccessorBase
       }
 
       // At the end of the ID mapping process the attached write access handler are given a chance to modify the
-      // committed change set via CommitContext.modify(). If that happens the various changes set variables need to be
+      // committed change set via CommitContext.modify(). If that happens the various CangeSet variables need to be
       // re-initialized. See below...
       applyIDMappings(context, monitor);
 
       if (context.getOriginalCommmitData() != null)
       {
-        // The various changes set variables need to be re-initialized because the attached write access handler have
+        // The various ChangeSet variables need to be re-initialized because the attached write access handler have
         // modified the committed change set via CommitContext.modify().
-
         newObjects = context.getNewObjects();
         detachedObjects = context.getDetachedObjects();
         dirtyObjectDeltas = context.getDirtyObjectDeltas();

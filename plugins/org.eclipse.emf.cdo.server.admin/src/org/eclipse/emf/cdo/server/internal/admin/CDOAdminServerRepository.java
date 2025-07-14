@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, 2015, 2016, 2019, 2021, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2012, 2013, 2015, 2016, 2019, 2021, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -226,6 +226,12 @@ public class CDOAdminServerRepository extends Notifier implements CDOAdminReposi
   }
 
   @Override
+  public String getLobDigestAlgorithm()
+  {
+    return delegate.getLobDigestAlgorithm();
+  }
+
+  @Override
   public CommitInfoStorage getCommitInfoStorage()
   {
     return delegate.getCommitInfoStorage();
@@ -279,6 +285,7 @@ public class CDOAdminServerRepository extends Notifier implements CDOAdminReposi
     out.writeBoolean(isEnsuringReferentialIntegrity());
     out.writeBoolean(isAuthorizingOperations());
     out.writeEnum(getIDGenerationLocation());
+    out.writeString(getLobDigestAlgorithm());
     out.writeEnum(getCommitInfoStorage());
   }
 

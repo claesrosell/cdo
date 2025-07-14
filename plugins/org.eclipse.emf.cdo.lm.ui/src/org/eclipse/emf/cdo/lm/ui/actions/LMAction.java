@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -307,8 +307,9 @@ public abstract class LMAction<CONTEXT extends CDOObject> extends LongRunningAct
   {
     private final StructuredViewer viewer;
 
-    public NewElement(IWorkbenchPage page, StructuredViewer viewer, String text, String toolTipText, ImageDescriptor image, String bannerMessage,
-        String bannerImagePath, CONTEXT context)
+    public NewElement(IWorkbenchPage page, StructuredViewer viewer, //
+        String text, String toolTipText, ImageDescriptor image, //
+        String bannerMessage, String bannerImagePath, CONTEXT context)
     {
       super(page, text, toolTipText, image, bannerMessage, bannerImagePath, context);
       this.viewer = viewer;

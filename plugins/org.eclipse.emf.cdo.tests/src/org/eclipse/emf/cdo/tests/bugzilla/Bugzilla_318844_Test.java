@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012, 2016 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2012, 2016, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,7 @@ import java.util.Date;
 
 /**
  * Bug 318844 - CDONotificationBuilder cannot handle mixed OID's/CDOObjects when processing CDOClearFeatureDelta</p>
- * http://bugs.eclipse.org/318844</p>
+ * https://bugs.eclipse.org/318844</p>
  *
  * @author Caspar De Groot
  * @since 4.0

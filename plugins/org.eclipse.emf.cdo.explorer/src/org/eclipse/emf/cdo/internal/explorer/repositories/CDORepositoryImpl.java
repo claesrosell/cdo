@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016, 2019-2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2015, 2016, 2019-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -791,23 +791,23 @@ public abstract class CDORepositoryImpl extends AbstractElement implements CDORe
 
     if (SET_USER_NAME_REMOTE)
     {
-      String userName = System.getProperty("user.name");
-      if (!StringUtil.isEmpty(userName))
+      String userID = getUserID();
+      if (!StringUtil.isEmpty(userID))
       {
-        sessionConfiguration.setUserID(userName);
+        sessionConfiguration.setUserID(userID);
       }
     }
 
     CDOSession session = sessionConfiguration.openSession();
     session.options().setGeneratedPackageEmulationEnabled(true);
-    session.options().setLobCache(new CDOLobStoreImpl(new File(getFolder(), "lobs")));
+    session.options().setLobCache(new CDOLobStoreImpl(new File(getFolder(), "lobs"), session.getRepositoryInfo().getLobDigestAlgorithm()));
 
     if (!SET_USER_NAME_REMOTE && SET_USER_NAME && StringUtil.isEmpty(session.getUserID()))
     {
-      String userName = System.getProperty("user.name");
-      if (!StringUtil.isEmpty(userName))
+      String userID = getUserID();
+      if (!StringUtil.isEmpty(userID))
       {
-        ((InternalCDOSession)session).setUserID(userName);
+        ((InternalCDOSession)session).setUserID(userID);
       }
     }
 
@@ -817,6 +817,27 @@ public abstract class CDORepositoryImpl extends AbstractElement implements CDORe
   protected void closeSession()
   {
     session.close();
+  }
+
+  private String getUserID()
+  {
+    IPasswordCredentials credentials = getCredentials();
+    if (credentials != null)
+    {
+      String userID = credentials.getUserID();
+      if (!StringUtil.isEmpty(userID))
+      {
+        return userID;
+      }
+    }
+
+    String userName = System.getProperty("user.name");
+    if (!StringUtil.isEmpty(userName))
+    {
+      return userName;
+    }
+
+    return null;
   }
 
   private void withSecureNode(boolean createOnDemand, ConsumerWithException<ISecurePreferences, Exception> consumer)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2018, 2020-2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2018, 2020-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -424,6 +424,21 @@ public interface CDOProtocolConstants
    * @since 3.0
    */
   public static final String QUERY_LANGUAGE_XREFS_SOURCE_REFERENCES = "sourceReferences"; //$NON-NLS-1$
+
+  /**
+   * @since 4.26
+   */
+  public static final String QUERY_LANGUAGE_FINGER_PRINT = "fingerPrint"; //$NON-NLS-1$
+
+  /**
+   * @since 4.26
+   */
+  public static final String QUERY_LANGUAGE_FINGER_PRINT_TYPE = "type"; //$NON-NLS-1$
+
+  /**
+   * @since 4.26
+   */
+  public static final String QUERY_LANGUAGE_FINGER_PRINT_PARAM = "param"; //$NON-NLS-1$
 
   // //////////////////////////////////////////////////////////////////////
   // Locking Objects

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2012, 2015, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2011, 2012, 2015, 2019, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -98,7 +98,7 @@ public class DefaultPropertyTester<RECEIVER> extends PropertyTester implements I
 
   public void dumpContributionMarkup()
   {
-    System.out.println("   <extension point=\"org.eclipse.core.expressions.propertyTesters\">");
+    // System.out.println(" <extension point=\"org.eclipse.core.expressions.propertyTesters\">");
     System.out.println("      <propertyTester");
     System.out.println("         id=\"" + getNamespace() + ".properties\"");
     System.out.println("         type=\"" + getReceiverTypeName() + "\"");
@@ -122,7 +122,7 @@ public class DefaultPropertyTester<RECEIVER> extends PropertyTester implements I
 
     System.out.println("\"");
     System.out.println("         class=\"" + getClass().getName() + "\"/>");
-    System.out.println("   </extension>");
+    // System.out.println(" </extension>");
 
   }
 }

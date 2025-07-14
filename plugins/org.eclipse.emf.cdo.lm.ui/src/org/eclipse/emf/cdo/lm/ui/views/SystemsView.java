@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.emf.cdo.lm.client.ISystemDescriptor.State;
 import org.eclipse.emf.cdo.lm.client.ISystemManager;
 import org.eclipse.emf.cdo.lm.ui.actions.CheckoutAction;
 import org.eclipse.emf.cdo.lm.ui.actions.DeleteChangeAction;
+import org.eclipse.emf.cdo.lm.ui.actions.DeleteCheckoutsAction;
 import org.eclipse.emf.cdo.lm.ui.actions.DeleteModuleAction;
 import org.eclipse.emf.cdo.lm.ui.actions.NewChangeAction;
 import org.eclipse.emf.cdo.lm.ui.actions.NewDeliveryAction;
@@ -193,8 +194,9 @@ public class SystemsView extends MultiViewersView
     else if (element instanceof System)
     {
       System system = (System)element;
-      manager.add(new NewModuleAction(page, treeViewer, system));
 
+      manager.add(new NewModuleAction(page, treeViewer, system));
+      manager.add(new DeleteCheckoutsAction.OfSystem(page, system));
       manager.add(new Action("Close")
       {
         @Override
@@ -208,7 +210,9 @@ public class SystemsView extends MultiViewersView
     else if (element instanceof Module)
     {
       Module module = (Module)element;
+
       manager.add(new NewStreamAction(page, treeViewer, adapterFactory, module));
+      manager.add(new DeleteCheckoutsAction.OfModule(page, module));
       manager.add(new DeleteModuleAction(page, module));
     }
     else if (element instanceof Baseline)
@@ -218,7 +222,7 @@ public class SystemsView extends MultiViewersView
       if (baseline instanceof Delivery || baseline instanceof Drop)
       {
         FixedBaseline fixedBaseline = (FixedBaseline)baseline;
-        manager.add(new CheckoutAction(page, baseline));
+        addBaselineCheckoutActions(manager, page, baseline);
         manager.add(new Separator());
 
         Stream stream = fixedBaseline.getStream();
@@ -228,7 +232,8 @@ public class SystemsView extends MultiViewersView
       else if (baseline instanceof Stream)
       {
         Stream stream = (Stream)baseline;
-        manager.add(new CheckoutAction(page, baseline));
+
+        addBaselineCheckoutActions(manager, page, baseline);
         manager.add(new Separator());
         manager.add(new NewChangeAction(page, treeViewer, stream, null));
         manager.add(new NewDeliveryAction(page, treeViewer, stream, null));
@@ -243,7 +248,8 @@ public class SystemsView extends MultiViewersView
       else if (baseline instanceof Change)
       {
         Change change = (Change)baseline;
-        manager.add(new CheckoutAction(page, baseline));
+
+        addBaselineCheckoutActions(manager, page, baseline);
         manager.add(new Separator());
 
         if (change.getDeliveries().isEmpty())
@@ -285,6 +291,14 @@ public class SystemsView extends MultiViewersView
         org.eclipse.emf.cdo.lm.internal.client.SystemManager.INSTANCE.scheduleOpenSystem(descriptor);
       }
     }
+  }
+
+  private void addBaselineCheckoutActions(IMenuManager menu, IWorkbenchPage page, Baseline baseline)
+  {
+    menu.add(new CheckoutAction(page, baseline));
+
+    DeleteCheckoutsAction.OfBaseline deleteCheckoutsAction = new DeleteCheckoutsAction.OfBaseline(page, baseline);
+    deleteCheckoutsAction.contributeIfNeeded(menu);
   }
 
   /**

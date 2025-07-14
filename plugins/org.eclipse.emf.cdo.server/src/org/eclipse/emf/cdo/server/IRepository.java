@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013, 2015, 2016, 2019, 2020, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2013, 2015, 2016, 2019, 2020, 2023-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.CDOCommonRepository;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.commit.CDOCommitInfoHandler;
 import org.eclipse.emf.cdo.common.commit.CDOCommitInfoManager;
+import org.eclipse.emf.cdo.common.lob.CDOLobLoader;
 import org.eclipse.emf.cdo.common.lock.IDurableLockingManager;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -42,7 +43,7 @@ import java.util.Set;
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IRepository extends CDOCommonRepository, IQueryHandlerProvider, IPropertiesContainer, IContainer<Object>, ILifecycle
+public interface IRepository extends CDOCommonRepository, CDOLobLoader, IQueryHandlerProvider, IPropertiesContainer, IContainer<Object>, ILifecycle
 {
   /**
    * @since 3.0
@@ -367,6 +368,11 @@ public interface IRepository extends CDOCommonRepository, IQueryHandlerProvider,
      * @since 4.1
      */
     public static final String ID_GENERATION_LOCATION = "idGenerationLocation"; //$NON-NLS-1$
+
+    /**
+     * @since 4.24
+     */
+    public static final String LOB_DIGEST_ALGORITHM = "lobDigestAlgorithm"; //$NON-NLS-1$
 
     /**
      * Possible values: NO | YES | WITH_MERGE_SOURCE.

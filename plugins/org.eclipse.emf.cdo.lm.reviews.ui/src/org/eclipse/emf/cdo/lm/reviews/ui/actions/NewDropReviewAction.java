@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,7 +60,7 @@ public class NewDropReviewAction extends LMAction.NewElement<Delivery>
         ExtendedImageRegistry.INSTANCE.getImageDescriptor(ReviewsEditPlugin.INSTANCE.getImage( //
             dropType.isRelease() ? "full/obj16/ReleaseReview" : "full/obj16/DropReview")), //
         "Add a new " + dropType.getName().toLowerCase() + " review to stream '" + delivery.getStream().getName() + "'.", //
-        dropType.isRelease() ? "icons/NewRelease.png" : "icons/NewDrop.png", //
+        dropType.isRelease() ? "icons/wizban/NewRelease.png" : "icons/wizban/NewDrop.png", //
         delivery);
     this.dropType = dropType;
   }

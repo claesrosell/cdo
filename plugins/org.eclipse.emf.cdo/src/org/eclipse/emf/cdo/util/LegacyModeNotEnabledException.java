@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2013, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ package org.eclipse.emf.cdo.util;
 import org.eclipse.emf.cdo.view.CDOView;
 
 /**
- * An unchecked exception being thrown if <i><a href="http://wiki.eclipse.org/CDO_Legacy_Mode">legacy objects</a></i>
+ * An unchecked exception being thrown if <i><a href="https://wiki.eclipse.org/CDO_Legacy_Mode">legacy objects</a></i>
  * are to be accessed and the associated {@link CDOView view} is not in {@link CDOView#isLegacyModeEnabled() legacy
  * mode}.
  *

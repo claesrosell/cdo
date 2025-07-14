@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013, 2016, 2017, 2019-2021, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2013, 2016, 2017, 2019-2021, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -514,9 +514,15 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader, Com
      *
      * @author Eike Stepper
      * @since 4.10
+     * @noimplement This interface is not intended to be implemented by clients.
      */
     public interface ModificationContext
     {
+      /**
+       * @since 4.24
+       */
+      public CDORevision attachNewObject(CDOID containerID, EReference containingReference, EClass eClass);
+
       public CDOChangeSetData getChangeSetData();
 
       public void cancelModification();
@@ -913,5 +919,16 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader, Com
     public void finishUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler, long timeStamp, Object initResult, List<CDOID> ids);
 
     public void writeUnits(Map<CDOID, CDOID> unitMappings, long timeStamp);
+  }
+
+  /**
+   * An extension interface for {@link IStoreAccessor store accessors} that support <i>units</i>.
+   *
+   * @author Eike Stepper
+   * @since 4.24
+   */
+  public interface NewIDSupport extends IStoreAccessor
+  {
+    public CDOID getNewID(CDORevision revision);
   }
 }

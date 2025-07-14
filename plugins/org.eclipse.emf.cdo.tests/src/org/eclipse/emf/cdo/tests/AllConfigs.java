@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, 2019-2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2016, 2019-2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,11 @@ public class AllConfigs extends ConfigTestSuite
   public List<Class<? extends ConfigTest>> getBugzillaTests()
   {
     return getTestClasses(OM.BUNDLE, "org.eclipse.emf.cdo.tests.bugzilla");
+  }
+
+  public List<Class<? extends ConfigTest>> getIssueTests()
+  {
+    return getTestClasses(OM.BUNDLE, "org.eclipse.emf.cdo.tests.issues");
   }
 
   @Override
@@ -124,6 +129,7 @@ public class AllConfigs extends ConfigTestSuite
 
     // Bugzilla verifications
     testClasses.addAll(getBugzillaTests());
+    testClasses.addAll(getIssueTests());
   }
 
   @Override

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <!--
-  Copyright (c) 2018, 2021, 2022 Eike Stepper (Loehne, Germany) and others.
+  Copyright (c) 2018, 2021, 2022, 2025 Eike Stepper (Loehne, Germany) and others.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
   which accompanies this distribution, and is available at
@@ -17,8 +17,13 @@
      <productGroup id="org.eclipse.emf.cdo.common.util.uriHandlers" name="%productGroup.name"/>
      <productGroup id="org.eclipse.emf.cdo.common.ResourceSetConfigurers" name="%productGroup.name.0"/>
      <productGroup id="org.eclipse.emf.cdo.common.model.typeHandlers" name="%productGroup.name.1"/>
+     <productGroup id="org.eclipse.emf.cdo.common.util.fingerPrinters" name="%productGroup.name.2"/>
   </extension>
 
+   <extension point="org.eclipse.net4j.util.factories">
+      <factory productGroup="org.eclipse.emf.cdo.common.util.fingerPrinters" type="digest" class="org.eclipse.emf.cdo.internal.common.util.DigestFingerPrinter$Factory"/>
+   </extension>
+   
   <extension point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
          id="org.eclipse.emf.cdo.repository.properties"

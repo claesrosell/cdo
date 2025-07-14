@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import org.eclipse.emf.cdo.lm.reviews.ui.actions.RestoreReviewAction;
 import org.eclipse.emf.cdo.lm.reviews.ui.actions.SubmitReviewAction;
 import org.eclipse.emf.cdo.lm.reviews.ui.actions.UnresolveAction;
 import org.eclipse.emf.cdo.lm.ui.actions.CheckoutAction;
+import org.eclipse.emf.cdo.lm.ui.actions.DeleteCheckoutsAction;
 
 import org.eclipse.net4j.util.factory.ProductCreationException;
 import org.eclipse.net4j.util.ui.MenuFiller;
@@ -95,6 +96,10 @@ public class ReviewsMenuFiller implements MenuFiller
 
       menu.add(new OpenReviewAction(page, review, null));
       menu.add(new CheckoutAction(page, ReviewsEditPlugin.INSTANCE, null, review));
+
+      DeleteCheckoutsAction.OfBaseline deleteCheckoutsAction = new DeleteCheckoutsAction.OfBaseline(page, review);
+      deleteCheckoutsAction.contributeIfNeeded(menu);
+
       menu.add(new Separator());
 
       ReviewStatus status = review.getStatus();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2012, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2011, 2012, 2019, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,8 +53,8 @@ public class Bugzilla_351096_Test extends AbstractCDOTest
 
       resource.getContents().add(image);
 
-      inputStream = new ByteArrayInputStream("Just another stream".getBytes());
-      blob = new CDOBlob(inputStream);
+      InputStream inputStream2 = new ByteArrayInputStream("Just another stream".getBytes());
+      blob = new CDOBlob(inputStream2);
 
       image = getModel3Factory().createImage();
       image.setWidth(320);
@@ -91,8 +91,8 @@ public class Bugzilla_351096_Test extends AbstractCDOTest
 
       resource.getContents().add(file);
 
-      inputStream = new ByteArrayInputStream("Just another stream".getBytes());
-      clob = new CDOClob(new InputStreamReader(inputStream));
+      InputStream inputStream2 = new ByteArrayInputStream("Just another stream".getBytes());
+      clob = new CDOClob(new InputStreamReader(inputStream2));
       file = getModel3Factory().createFile();
       file.setName("xxx.txt");
       file.setData(clob);

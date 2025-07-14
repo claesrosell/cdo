@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2019, 2021, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2018, 2019, 2021, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -193,6 +193,17 @@ public abstract class AbstractRepositoryProperties<RECEIVER> extends Properties<
       }
     });
 
+    add(new Property<RECEIVER>("lobDigestAlgorithm", Messages.getString("RepositoryPropertyTester_46"), //
+        Messages.getString("RepositoryPropertyTester_47"), //$NON-NLS-1$
+        CATEGORY_REPOSITORY)
+    {
+      @Override
+      protected Object eval(RECEIVER receiver)
+      {
+        return getRepository(receiver).getLobDigestAlgorithm();
+      }
+    });
+
     add(new Property<RECEIVER>("commitInfoStorage", Messages.getString("RepositoryPropertyTester_42"), //
         Messages.getString("RepositoryPropertyTester_43"), //$NON-NLS-1$
         CATEGORY_REPOSITORY)
@@ -292,6 +303,12 @@ public abstract class AbstractRepositoryProperties<RECEIVER> extends Properties<
 
   @Override
   public IDGenerationLocation getIDGenerationLocation()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getLobDigestAlgorithm()
   {
     throw new UnsupportedOperationException();
   }

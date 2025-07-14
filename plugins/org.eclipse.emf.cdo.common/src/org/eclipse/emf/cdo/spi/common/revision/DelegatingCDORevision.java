@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2014, 2018, 2019, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2014, 2018, 2019, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -424,6 +424,12 @@ public abstract class DelegatingCDORevision implements InternalCDORevision
   }
 
   @Override
+  public boolean readValue(CDODataInput in, EClass owner, EStructuralFeature feature, int i, boolean unchunked) throws IOException
+  {
+    return getDelegate().readValue(in, owner, feature, i, unchunked);
+  }
+
+  @Override
   public void write(CDODataOutput out, int referenceChunk) throws IOException
   {
     getDelegate().write(out, referenceChunk);
@@ -445,6 +451,12 @@ public abstract class DelegatingCDORevision implements InternalCDORevision
   public void writeValues(CDODataOutput out, int referenceChunk) throws IOException
   {
     getDelegate().writeValues(out, referenceChunk);
+  }
+
+  @Override
+  public void writeValue(CDODataOutput out, EClass owner, EStructuralFeature feature, int i, int referenceChunk) throws IOException
+  {
+    getDelegate().writeValue(out, owner, feature, i, referenceChunk);
   }
 
   @Override

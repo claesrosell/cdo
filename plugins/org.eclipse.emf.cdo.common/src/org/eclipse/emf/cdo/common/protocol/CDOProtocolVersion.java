@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2021-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,9 @@ class CDOProtocolVersion
 
   static
   {
-    VALUE = 52; // Provide an entity directory service and protocol #89
+    VALUE = 53; // Make digest algorithm configurable for CDOLob IDs #106
 
+    // VALUE = 52; // Provide an entity directory service and protocol #89
     // VALUE = 51; // Support login peeking
     // VALUE = 50; // Support optional lock state prefetching while opening a CDOUnit #20
     // VALUE = 49; // Add security support to CDO-LM #5

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,13 @@ public class ReflectOnTestModels
     }
   }
 
+  public static String fqn(EReference eReference)
+  {
+    EClass eClass = eReference.getEContainingClass();
+    EPackage ePackage = eClass.getEPackage();
+    return ePackage.getName() + "::" + eClass.getName() + "::" + eReference.getName();
+  }
+
   private static void reflectPackage(EPackage ePackage)
   {
     for (EClassifier eClassifier : ePackage.getEClassifiers())
@@ -78,13 +85,42 @@ public class ReflectOnTestModels
 
   private static void reflectReference(EReference eReference)
   {
-    // Find uni-directional cross references.
+    // dumpUniDirectionalCrossReference(eReference);
+    // dumpSingleValuedContainmentReference(eReference);
+    dumpManyValuedCrossReference(eReference);
+    // dumpSingleValuedCrossReference(eReference);
+  }
+
+  protected static void dumpUniDirectionalCrossReference(EReference eReference)
+  {
     if (eReference.getEOpposite() == null && !eReference.isContainer() && !eReference.isContainment())
     {
-      EClass eClass = eReference.getEContainingClass();
-      EPackage ePackage = eClass.getEPackage();
       String many = eReference.isMany() ? "  -->  MANY" : "";
-      System.out.println(ePackage.getName() + "::" + eClass.getName() + "::" + eReference.getName() + many);
+      System.out.println(fqn(eReference) + many);
+    }
+  }
+
+  protected static void dumpSingleValuedContainmentReference(EReference eReference)
+  {
+    if (eReference.isContainment() && !eReference.isMany())
+    {
+      System.out.println(fqn(eReference));
+    }
+  }
+
+  protected static void dumpManyValuedCrossReference(EReference eReference)
+  {
+    if (!eReference.isContainment() && !eReference.isContainer() && eReference.isMany())
+    {
+      System.out.println(fqn(eReference));
+    }
+  }
+
+  protected static void dumpSingleValuedCrossReference(EReference eReference)
+  {
+    if (!eReference.isContainment() && !eReference.isContainer() && !eReference.isMany())
+    {
+      System.out.println(fqn(eReference));
     }
   }
 }

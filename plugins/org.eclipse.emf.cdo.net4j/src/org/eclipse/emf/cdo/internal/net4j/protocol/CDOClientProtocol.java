@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016, 2018-2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2016, 2018-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -604,12 +604,14 @@ public class CDOClientProtocol extends AuthenticatingSignalProtocol<InternalCDOS
   public Map<String, Entity> requestEntities(String namespace, String... names)
   {
     Map<String, Entity> entities = new HashMap<>();
+
     send(new EntityRequest(this, (name, entity) -> {
       if (entity != null)
       {
         entities.put(name, entity);
       }
     }, namespace, names));
+
     return entities;
   }
 
