@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, 2019, 2021, 2023, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2017, 2019, 2021, 2023-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -612,7 +612,7 @@ public abstract class SynchronizableRepository extends Repository.Default implem
     InternalStore store = getStore();
     if (!store.isFirstStart())
     {
-      Map<String, String> map = store.getPersistentProperties(Collections.singleton(PROP_GRACEFULLY_SHUT_DOWN));
+      Map<String, String> map = store.getPersistentProperties(PROP_GRACEFULLY_SHUT_DOWN);
       if (!map.containsKey(PROP_GRACEFULLY_SHUT_DOWN))
       {
         setReplicationCountersToLatest();

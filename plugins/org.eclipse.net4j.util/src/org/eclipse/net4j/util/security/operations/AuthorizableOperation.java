@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2021, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,6 +53,22 @@ public final class AuthorizableOperation
   public Map<String, Object> getParameters()
   {
     return Collections.unmodifiableMap(parameters);
+  }
+
+  /**
+   * @since 3.28
+   */
+  public boolean hasParameters()
+  {
+    return !parameters.isEmpty();
+  }
+
+  /**
+   * @since 3.28
+   */
+  public AuthorizableOperation stripParameters()
+  {
+    return parameters.isEmpty() ? this : build(id);
   }
 
   @Override
@@ -217,7 +233,7 @@ public final class AuthorizableOperation
       }
 
       Builder other = (Builder)obj;
-      return Objects.equals(id, other.id);
+      return id == other.id; // IDs are interned.
     }
 
     @Override

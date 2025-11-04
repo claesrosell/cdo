@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2016, 2019-2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2016, 2019-2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -190,17 +190,23 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, CDOLobLoader, I
 
   /**
    * @since 4.5
+   * @deprecated As of 4.29 use {@link #sync()}
    */
+  @Deprecated
   public Object getViewMonitor();
 
   /**
    * @since 4.5
+   * @deprecated As of 4.29 use {@link #sync()}
    */
+  @Deprecated
   public void lockView();
 
   /**
    * @since 4.5
+   * @deprecated As of 4.29 use {@link #sync()}
    */
+  @Deprecated
   public void unlockView();
 
   /**

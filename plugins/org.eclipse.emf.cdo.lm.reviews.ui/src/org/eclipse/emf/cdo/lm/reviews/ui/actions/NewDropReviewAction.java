@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.lm.reviews.DropReview;
 import org.eclipse.emf.cdo.lm.reviews.ReviewsFactory;
 import org.eclipse.emf.cdo.lm.reviews.ReviewsPackage;
 import org.eclipse.emf.cdo.lm.reviews.provider.ReviewsEditPlugin;
+import org.eclipse.emf.cdo.lm.reviews.util.ReviewsOperations;
 import org.eclipse.emf.cdo.lm.ui.actions.CheckoutAction;
 import org.eclipse.emf.cdo.lm.ui.actions.LMAction;
 import org.eclipse.emf.cdo.lm.ui.bundle.OM;
@@ -63,6 +64,12 @@ public class NewDropReviewAction extends LMAction.NewElement<Delivery>
         dropType.isRelease() ? "icons/wizban/NewRelease.png" : "icons/wizban/NewDrop.png", //
         delivery);
     this.dropType = dropType;
+  }
+
+  @Override
+  public String getAuthorizableOperationID()
+  {
+    return ReviewsOperations.CREATE_DROP_REVIEW;
   }
 
   @Override

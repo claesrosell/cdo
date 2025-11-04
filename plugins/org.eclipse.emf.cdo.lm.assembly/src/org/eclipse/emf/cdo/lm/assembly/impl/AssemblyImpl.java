@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,10 @@ import org.eclipse.emf.cdo.etypes.impl.ModelElementImpl;
 import org.eclipse.emf.cdo.lm.assembly.Assembly;
 import org.eclipse.emf.cdo.lm.assembly.AssemblyModule;
 import org.eclipse.emf.cdo.lm.assembly.AssemblyPackage;
+import org.eclipse.emf.cdo.lm.modules.DependencyDefinition;
+import org.eclipse.emf.cdo.lm.modules.ModuleDefinition;
+import org.eclipse.emf.cdo.lm.modules.ModulesFactory;
+import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.BasicEList;
@@ -25,6 +29,9 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.util.EcoreUtil.EqualityHelper;
 import org.eclipse.emf.ecore.util.InternalEList;
+
+import org.eclipse.equinox.p2.metadata.Version;
+import org.eclipse.equinox.p2.metadata.VersionRange;
 
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +55,11 @@ import java.util.function.Consumer;
  */
 public class AssemblyImpl extends ModelElementImpl implements Assembly
 {
+  /**
+   * @since 1.1
+   */
+  public static final String PROP_ASSEMBLY = "org.eclipse.emf.cdo.lm.assembly.Assembly";
+
   /**
    * The default value of the '{@link #getSystemName() <em>System Name</em>}' attribute.
    * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -264,6 +276,40 @@ public class AssemblyImpl extends ModelElementImpl implements Assembly
         consumer.accept(module);
       }
     }
+  }
+
+  @Override
+  public ModuleDefinition toModuleDefinition()
+  {
+    AssemblyModule rootModule = getRootModule();
+
+    ModuleDefinition moduleDefinition = ModulesFactory.eINSTANCE.createModuleDefinition(rootModule.getName(), rootModule.getVersion());
+    EList<DependencyDefinition> dependencies = moduleDefinition.getDependencies();
+
+    for (AssemblyModule assemblyModule : getModules())
+    {
+      if (assemblyModule != rootModule)
+      {
+        String name = assemblyModule.getName();
+        Version version = assemblyModule.getVersion();
+        VersionRange versionRange = new VersionRange(version, true, version, true);
+
+        DependencyDefinition dependencyDefinition = ModulesFactory.eINSTANCE.createDependencyDefinition();
+        dependencyDefinition.setTargetName(name);
+        dependencyDefinition.setVersionRange(versionRange);
+        dependencies.add(dependencyDefinition);
+      }
+    }
+
+    return moduleDefinition;
+  }
+
+  /**
+   * @since 1.1
+   */
+  public void associateView(CDOView view)
+  {
+    view.properties().put(PROP_ASSEMBLY, this);
   }
 
   @Override

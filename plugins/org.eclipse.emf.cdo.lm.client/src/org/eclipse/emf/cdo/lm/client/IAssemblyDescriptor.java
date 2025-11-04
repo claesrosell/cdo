@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.lm.assembly.AssemblyModule;
 
 import org.eclipse.net4j.util.container.IContainer;
 import org.eclipse.net4j.util.event.IEvent;
+import org.eclipse.net4j.util.properties.IPropertiesContainer;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ import java.util.Set;
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IAssemblyDescriptor extends IContainer<AssemblyModule>
+public interface IAssemblyDescriptor extends IPropertiesContainer, IContainer<AssemblyModule>
 {
   public String getName();
 

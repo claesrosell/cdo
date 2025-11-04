@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.lm.client.ISystemManager;
 import org.eclipse.emf.cdo.lm.modules.ModuleDefinition;
 import org.eclipse.emf.cdo.lm.provider.LMEditPlugin;
 import org.eclipse.emf.cdo.lm.ui.widgets.TimeStampComposite;
+import org.eclipse.emf.cdo.lm.util.LMOperations;
 
 import org.eclipse.net4j.util.ui.UIUtil;
 
@@ -78,6 +79,12 @@ public class NewDropAction extends LMAction.NewElement<Stream>
         dropType.isRelease() ? "icons/wizban/NewRelease.png" : "icons/wizban/NewDrop.png", //
         stream);
     this.dropType = dropType;
+  }
+
+  @Override
+  public String getAuthorizableOperationID()
+  {
+    return LMOperations.CREATE_DROP;
   }
 
   @Override

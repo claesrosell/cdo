@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2014, 2016, 2019, 2021, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2014, 2016, 2019, 2021, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -78,7 +78,7 @@ public interface CDOObject extends EObject, CDOWithID
 
   /**
    * Returns the {@link CDOView view} this object is associated with, or <code>null</code> if this object is not
-   * associated with a view. This view manages all aspects of this object and cahces it as long as required.
+   * associated with a view. This view manages all aspects of this object and caches it as long as required.
    *
    * @since 2.0
    */

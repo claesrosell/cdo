@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2012, 2014, 2018-2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2008-2012, 2014, 2018-2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -100,6 +100,22 @@ public class TransactionTest extends AbstractCDOTest
     {
       // SUCCESS
     }
+  }
+
+  public void testTryWithResources() throws Exception
+  {
+    CDOSession session = openSession();
+
+    try (CDOTransaction transaction = session.openTransaction())
+    {
+      assertEquals(1, session.getViews().length);
+
+      CDOResource resource = transaction.getOrCreateResource(getResourcePath("/test1"));
+      resource.getContents().add(getModel1Factory().createCompany());
+      transaction.commit();
+    }
+
+    assertEquals(0, session.getViews().length);
   }
 
   /**
@@ -343,6 +359,7 @@ public class TransactionTest extends AbstractCDOTest
     }
   }
 
+  @SuppressWarnings("resource")
   public void testPushModeNewObjects() throws Exception
   {
     IOUtil.OUT().println("Creating category1");
@@ -393,6 +410,7 @@ public class TransactionTest extends AbstractCDOTest
     session.close();
   }
 
+  @SuppressWarnings("resource")
   public void testPushModeDeltas() throws Exception
   {
     IOUtil.OUT().println("Creating category1");

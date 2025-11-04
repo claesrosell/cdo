@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2011, 2012, 2014, 2015, 2018-2021, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009, 2011, 2012, 2014, 2015, 2018-2021, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.eresource.CDOResourceFactory;
 import org.eclipse.emf.internal.cdo.view.CDOViewSetImpl;
 
 import org.eclipse.net4j.util.container.IContainer;
+import org.eclipse.net4j.util.properties.IPropertiesContainer;
 
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
@@ -34,7 +35,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface CDOViewSet extends Notifier, IContainer<CDOView>
+public interface CDOViewSet extends Notifier, IContainer<CDOView>, IPropertiesContainer
 {
   /**
    * @since 4.24

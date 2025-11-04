@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2012, 2015, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2012, 2015, 2019, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,7 +94,7 @@ public class CDOFeatureAnalyzerUI extends CDOAbstractFeatureRuleAnalyzer
         return null;
       }
 
-      Collection<CDOFetchRule> fetchRules = fetchOfRule.getFeatureInfo().getRules(null, null);
+      Collection<CDOFetchRule> fetchRules = fetchOfRule.getFeatureInfo().getFetchRules(null, null);
 
       for (CDOFetchRule fetchRule : fetchRules)
       {
@@ -111,9 +111,8 @@ public class CDOFeatureAnalyzerUI extends CDOAbstractFeatureRuleAnalyzer
   @Override
   protected void doPreTraverseFeature(CDOObject cdoObject, EStructuralFeature feature, int index)
   {
-    // Don`t handle containment relationship
+    // Don't handle containment relationship
     // TODO Simon: Do you really mean containment here? The check is different...
-    // TODO Clarify feature maps
     if (feature instanceof EReference)
     {
       if (lastElapseTimeBetweenOperations > maxTimeBetweenOperation || currentClusterOfFetchRule == null)

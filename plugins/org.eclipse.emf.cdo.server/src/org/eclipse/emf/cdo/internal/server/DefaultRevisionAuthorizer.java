@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,8 +88,8 @@ public class DefaultRevisionAuthorizer extends RevisionAuthorizer
   }
 
   @Override
-  public CDOPermission authorizeRevision(ISession session, UserInfo userInfo, CDOBranchPoint securityContext, CDORevisionProvider revisionProvider,
-      CDORevision revision)
+  public CDOPermission authorizeRevision(ISession session, UserInfo userInfo, CDOBranchPoint securityContext, //
+      CDORevisionProvider revisionProvider, CDORevision revision)
   {
     if (matcher.matches(session, userInfo, securityContext, revisionProvider, revision))
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013, 2016, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2013, 2016, 2019, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,6 +56,38 @@ public interface IClassMapping
   public List<IDBTable> getDBTables();
 
   /**
+   * @since 4.14
+   */
+  public default IDBTable getTable()
+  {
+    List<IDBTable> tables = getDBTables();
+    if (tables.isEmpty())
+    {
+      return null;
+    }
+
+    return tables.get(0);
+  }
+
+  /**
+   * @since 4.14
+   */
+  public default IFeatureMapping getFeatureMapping(EStructuralFeature feature)
+  {
+    if (feature == null)
+    {
+      return null;
+    }
+
+    if (feature.isMany())
+    {
+      return getListMapping(feature);
+    }
+
+    return getValueMapping(feature);
+  }
+
+  /**
    * Get the mapping of the many-valued feature.
    *
    * @param feature
@@ -69,6 +101,35 @@ public interface IClassMapping
    * @since 3.0
    */
   public List<IListMapping> getListMappings();
+
+  /**
+   * @since 4.14
+   */
+  public default ITypeMapping getValueMapping(EStructuralFeature feature)
+  {
+    if (!isMapped())
+    {
+      return null;
+    }
+
+    for (ITypeMapping valueMapping : getValueMappings())
+    {
+      if (valueMapping.getFeature() == feature)
+      {
+        return valueMapping;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * @since 4.14
+   */
+  public default boolean isMapped()
+  {
+    return getValueMappings() != null && getListMappings() != null;
+  }
 
   /**
    * @since 4.0

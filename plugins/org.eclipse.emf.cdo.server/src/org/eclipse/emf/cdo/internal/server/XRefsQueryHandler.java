@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2017, 2019, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2017, 2019, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -111,21 +111,7 @@ public class XRefsQueryHandler implements IQueryHandler
 
     for (CDOPackageInfo packageInfo : packageRegistry.getPackageInfos())
     {
-      // System.out.println();
-      // System.out.println();
-      // System.out.println(packageInfo);
       collectSourceCandidates(packageInfo, concreteTypes, sourceCandidates);
-      // for (Map.Entry<EClass, List<EReference>> entry : sourceCandidates.entrySet())
-      // {
-      // System.out.println(" ---> " + entry.getKey().getName());
-      // for (EReference eReference : entry.getValue())
-      // {
-      // System.out.println(" ---> " + eReference.getName());
-      // }
-      // }
-      //
-      // System.out.println();
-      // System.out.println();
     }
   }
 

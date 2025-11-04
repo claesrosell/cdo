@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2009, 2011, 2012, 2014 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2009, 2011, 2012, 2014, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,24 +14,31 @@ package org.eclipse.emf.internal.cdo.analyzer;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import java.util.Objects;
+
 /**
  * @author Simon McDuff
  */
 public class CDOClusterOfFetchRule
 {
-  private CDOAnalyzerFeatureInfo featureInfo = new CDOAnalyzerFeatureInfo();
+  private final EClass rootClass;
 
-  private EStructuralFeature rootFeature;
+  private final EStructuralFeature rootFeature;
 
-  private EClass rootClass;
+  private final CDOAnalyzerFeatureInfo featureInfo = new CDOAnalyzerFeatureInfo();
 
   private long lastUpdate;
 
   public CDOClusterOfFetchRule(EClass rootClass, EStructuralFeature rootFeature)
   {
-    this.rootFeature = rootFeature;
     this.rootClass = rootClass;
+    this.rootFeature = rootFeature;
     lastUpdate = System.currentTimeMillis();
+  }
+
+  public EClass getRootClass()
+  {
+    return rootClass;
   }
 
   public EStructuralFeature getRootFeature()
@@ -52,7 +59,7 @@ public class CDOClusterOfFetchRule
   @Override
   public int hashCode()
   {
-    return rootClass.hashCode() ^ rootFeature.hashCode();
+    return Objects.hash(rootClass, rootFeature);
   }
 
   @Override
@@ -65,8 +72,8 @@ public class CDOClusterOfFetchRule
 
     if (obj instanceof CDOClusterOfFetchRule)
     {
-      CDOClusterOfFetchRule featureInfo = (CDOClusterOfFetchRule)obj;
-      return featureInfo.rootClass == rootClass && featureInfo.rootFeature == rootFeature;
+      CDOClusterOfFetchRule other = (CDOClusterOfFetchRule)obj;
+      return other.rootClass == rootClass && other.rootFeature == rootFeature;
     }
 
     return false;

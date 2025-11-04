@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007, 2011-2013, 2015, 2016, 2020, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007, 2011-2013, 2015, 2016, 2020, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -195,6 +195,19 @@ public final class ObjectUtil
   }
 
   /**
+   * @since 3.29
+   */
+  public static <T> T ifNotNull(T object, Consumer<T> consumer)
+  {
+    if (object != null && consumer != null)
+    {
+      consumer.accept(object);
+    }
+
+    return object;
+  }
+
+  /**
    * @since 3.28
    */
   public static <T> T requireNonNullElse(T obj, T defaultObj)
@@ -227,6 +240,22 @@ public final class ObjectUtil
     }
 
     return null;
+  }
+
+  /**
+   * Attempts to cast an {@code object} as an instance of the given {@code type}.
+   * If the {@code object} is not of the required {@code type}, the given {@code onFail} action is executed.
+   *
+   * @since 3.29
+   */
+  public static <T, EX extends Throwable> T tryCast(Object object, Class<T> type, Supplier<EX> onFail) throws EX
+  {
+    if (type.isInstance(object))
+    {
+      return type.cast(object);
+    }
+
+    throw onFail.get();
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2016, 2019, 2022, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2012, 2016, 2019, 2022, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,8 @@ import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.collection.Entity;
 import org.eclipse.net4j.util.collection.Entity.Builder;
 import org.eclipse.net4j.util.container.IContainerDelta.Kind;
+import org.eclipse.net4j.util.container.IManagedContainer;
+import org.eclipse.net4j.util.container.IManagedContainerProvider;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
@@ -51,7 +53,7 @@ import java.util.function.Consumer;
  * @author Eike Stepper
  * @since 2.0
  */
-public abstract class Store extends Lifecycle implements InternalStore, Entity.Store.Provider
+public abstract class Store extends Lifecycle implements InternalStore, Entity.Store.Provider, IManagedContainerProvider
 {
   /**
    * @since 3.0
@@ -459,6 +461,15 @@ public abstract class Store extends Lifecycle implements InternalStore, Entity.S
     return revision;
   }
 
+  /**
+   * @since 4.25
+   */
+  @Override
+  public IManagedContainer getContainer()
+  {
+    return getRepository().getContainer();
+  }
+
   @Override
   public Entity.Store getEntityStore()
   {
@@ -483,7 +494,7 @@ public abstract class Store extends Lifecycle implements InternalStore, Entity.S
       Map<String, String> persistentProperties = getPersistentProperties(null);
       return entityBuilder().name(ENTITY_NAME_PERSISTENT_PROPERTIES).properties(persistentProperties).build();
     }
-  
+
     return null;
   }
 

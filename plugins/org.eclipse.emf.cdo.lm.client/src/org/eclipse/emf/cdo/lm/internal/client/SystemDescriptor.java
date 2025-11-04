@@ -59,6 +59,7 @@ import org.eclipse.emf.cdo.lm.System;
 import org.eclipse.emf.cdo.lm.assembly.Assembly;
 import org.eclipse.emf.cdo.lm.assembly.AssemblyFactory;
 import org.eclipse.emf.cdo.lm.assembly.AssemblyModule;
+import org.eclipse.emf.cdo.lm.assembly.impl.AssemblyImpl;
 import org.eclipse.emf.cdo.lm.client.ISystemDescriptor;
 import org.eclipse.emf.cdo.lm.client.ISystemDescriptor.ResolutionException.Reason;
 import org.eclipse.emf.cdo.lm.client.ISystemDescriptor.ResolutionException.Reason.Conflicting;
@@ -98,6 +99,7 @@ import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.OSGiUtil;
 import org.eclipse.net4j.util.om.monitor.EclipseMonitor;
+import org.eclipse.net4j.util.registry.HashMapRegistry;
 import org.eclipse.net4j.util.registry.IRegistry;
 import org.eclipse.net4j.util.security.IPasswordCredentials;
 
@@ -171,6 +173,8 @@ public final class SystemDescriptor implements ISystemDescriptor
   private static final String JVM_ACCEPTOR_TYPE = Net4jUtil.LOCAL_ACCEPTOR_TYPE;
 
   private static final String JVM_ACCEPTOR_NAME = Net4jUtil.LOCAL_ACCEPTOR_DESCRIPTION;
+
+  private final IRegistry<String, Object> properties = new HashMapRegistry.AutoCommit<>();
 
   private final IListener systemListener = new CDOViewCommitInfoListener()
   {
@@ -409,6 +413,12 @@ public final class SystemDescriptor implements ISystemDescriptor
   }
 
   @Override
+  public IRegistry<String, Object> properties()
+  {
+    return properties;
+  }
+
+  @Override
   public int compareTo(ISystemDescriptor o)
   {
     if (this == NO_SYSTEM || o == NO_SYSTEM)
@@ -510,6 +520,14 @@ public final class SystemDescriptor implements ISystemDescriptor
     }
 
     return moduleRepository;
+  }
+
+  public boolean unregisterModuleRepository(CDORepository moduleRepository)
+  {
+    synchronized (this)
+    {
+      return moduleRepositories.values().removeIf(repo -> repo == moduleRepository);
+    }
   }
 
   private CDORepository connectModuleRepository(String moduleName)
@@ -806,7 +824,7 @@ public final class SystemDescriptor implements ISystemDescriptor
     ModuleDefinition rootDefinition = extractModuleDefinition(primaryView);
     if (rootDefinition != null)
     {
-      Assembly assembly = createEmptyAssembly();
+      Assembly assembly = createModuleAssembly(rootDefinition);
 
       try
       {
@@ -829,6 +847,8 @@ public final class SystemDescriptor implements ISystemDescriptor
   public Map<String, CDOView> configureModuleResourceSet(ResourceSet resourceSet, Assembly assembly)
   {
     CDOView primaryView = CDOUtil.getView(resourceSet);
+    ((AssemblyImpl)assembly).associateView(primaryView);
+
     Map<String, CDOView> moduleViews = new HashMap<>();
 
     assembly.forEachDependency(module -> {
@@ -855,18 +875,11 @@ public final class SystemDescriptor implements ISystemDescriptor
   @Override
   public Assembly resolve(ModuleDefinition rootDefinition, Baseline rootBaseline, IProgressMonitor monitor) throws ResolutionException
   {
-    Assembly assembly = createEmptyAssembly();
+    Assembly assembly = createModuleAssembly(rootDefinition);
+    AssemblyModule rootModule = assembly.getRootModule();
 
-    String rootModuleName = rootDefinition.getName();
-    Version rootModuleVersion = rootDefinition.getVersion();
     CDOBranchPointRef rootBranchPoint = rootBaseline.getBranchPoint();
-
-    AssemblyModule rootModule = AssemblyFactory.eINSTANCE.createAssemblyModule();
-    rootModule.setAssembly(assembly);
-    rootModule.setName(rootModuleName);
-    rootModule.setVersion(rootModuleVersion);
     rootModule.setBranchPoint(rootBranchPoint);
-    rootModule.setRoot(true);
     addAnnotation(rootModule, rootBaseline, rootDefinition);
 
     try
@@ -882,6 +895,10 @@ public final class SystemDescriptor implements ISystemDescriptor
     return assembly;
   }
 
+  /**
+   * Uses p2 to add AssemblyModules for all dependencies of the given rootDefinition to the given assembly.
+   * No AssemblyModule is added for the given rootDefinition itself!
+   */
   private void resolveDependencies(ModuleDefinition rootDefinition, Assembly assembly, IProgressMonitor monitor) throws ResolutionException, ProvisionException
   {
     List<FixedBaseline> baselines = new ArrayList<>();
@@ -1367,6 +1384,18 @@ public final class SystemDescriptor implements ISystemDescriptor
     }
 
     return fingerPrinterEntity;
+  }
+
+  private Assembly createModuleAssembly(ModuleDefinition moduleDefinition)
+  {
+    AssemblyModule rootModule = AssemblyFactory.eINSTANCE.createAssemblyModule();
+    rootModule.setName(moduleDefinition.getName());
+    rootModule.setVersion(moduleDefinition.getVersion());
+    rootModule.setRoot(true);
+
+    Assembly assembly = createEmptyAssembly();
+    assembly.getModules().add(rootModule);
+    return assembly;
   }
 
   public Assembly createEmptyAssembly()

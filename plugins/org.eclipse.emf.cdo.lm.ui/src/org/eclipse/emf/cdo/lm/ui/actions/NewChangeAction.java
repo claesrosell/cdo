@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.lm.internal.client.LMNamingStrategy;
 import org.eclipse.emf.cdo.lm.provider.LMEditPlugin;
 import org.eclipse.emf.cdo.lm.ui.bundle.OM;
 import org.eclipse.emf.cdo.lm.ui.widgets.BaselineComposite;
+import org.eclipse.emf.cdo.lm.util.LMOperations;
 
 import org.eclipse.net4j.util.StringUtil;
 
@@ -75,6 +76,12 @@ public class NewChangeAction extends LMAction.NewElement<Stream>
         "icons/wizban/NewChange.png", //
         stream);
     this.base = base;
+  }
+
+  @Override
+  public String getAuthorizableOperationID()
+  {
+    return LMOperations.CREATE_CHANGE;
   }
 
   @Override

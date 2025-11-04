@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.lm.client.IAssemblyManager;
 import org.eclipse.emf.cdo.lm.client.ISystemDescriptor;
 import org.eclipse.emf.cdo.lm.client.ISystemManager;
 import org.eclipse.emf.cdo.lm.ui.bundle.OM;
+import org.eclipse.emf.cdo.lm.util.LMOperations;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
@@ -41,6 +42,12 @@ public class DeleteChangeAction extends LMAction<Change>
         "Delete the change '" + change.getLabel() + "'.", //
         "icons/wizban/Delete.png", //
         change);
+  }
+
+  @Override
+  public String getAuthorizableOperationID()
+  {
+    return LMOperations.DELETE_CHANGE;
   }
 
   @Override

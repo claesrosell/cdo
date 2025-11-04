@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013, 2015, 2016, 2018, 2019, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2013, 2015, 2016, 2018, 2019, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -59,11 +58,10 @@ public class Bugzilla_316444_Test extends AbstractCDOTest
   private List<Exception> exceptions;
 
   @Override
-  public synchronized Map<String, Object> getTestProperties()
+  protected void initTestProperties(Map<String, Object> properties)
   {
-    Map<String, Object> map = super.getTestProperties();
-    map.put(IRepository.Props.ENSURE_REFERENTIAL_INTEGRITY, "true");
-    return map;
+    super.initTestProperties(properties);
+    properties.put(IRepository.Props.ENSURE_REFERENTIAL_INTEGRITY, "true");
   }
 
   @Override
@@ -593,22 +591,17 @@ public class Bugzilla_316444_Test extends AbstractCDOTest
     }
 
     CDOView view = CDOUtil.getView(node);
-    return view.syncExec(new Callable<NodeB>()
-    {
-      @Override
-      public NodeB call() throws Exception
+    return view.sync().call(() -> {
+      for (NodeB child : node.getChildren())
       {
-        for (NodeB child : node.getChildren())
+        NodeB elementFromGraph = getElementFromGraphNodeB(child, name);
+        if (elementFromGraph != null)
         {
-          NodeB elementFromGraph = getElementFromGraphNodeB(child, name);
-          if (elementFromGraph != null)
-          {
-            return elementFromGraph;
-          }
+          return elementFromGraph;
         }
-
-        return null;
       }
+
+      return null;
     });
   }
 
@@ -621,22 +614,17 @@ public class Bugzilla_316444_Test extends AbstractCDOTest
     }
 
     CDOView view = CDOUtil.getView(node);
-    return view.syncExec(new Callable<NodeA>()
-    {
-      @Override
-      public NodeA call() throws Exception
+    return view.sync().call(() -> {
+      for (NodeA child : node.getChildren())
       {
-        for (NodeA child : node.getChildren())
+        NodeA elementFromGraph = getElementFromGraphNodeA(child, name);
+        if (elementFromGraph != null)
         {
-          NodeA elementFromGraph = getElementFromGraphNodeA(child, name);
-          if (elementFromGraph != null)
-          {
-            return elementFromGraph;
-          }
+          return elementFromGraph;
         }
-
-        return null;
       }
+
+      return null;
     });
   }
 

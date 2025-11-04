@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.lm.FixedBaseline;
 import org.eclipse.emf.cdo.lm.client.ISystemDescriptor;
 import org.eclipse.emf.cdo.lm.client.ISystemManager;
 import org.eclipse.emf.cdo.lm.ui.bundle.OM;
+import org.eclipse.emf.cdo.lm.util.LMOperations;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -35,6 +36,12 @@ public class AttachFingerPrintAction extends LMAction.NewElement<FixedBaseline>
         "Attach a new fingerprint to baseline '" + fixedBaseline.getName() + "'.", //
         "icons/wizban/FingerPrint.png", //
         fixedBaseline);
+  }
+
+  @Override
+  public String getAuthorizableOperationID()
+  {
+    return LMOperations.ATTACH_FINGERPRINT;
   }
 
   @Override

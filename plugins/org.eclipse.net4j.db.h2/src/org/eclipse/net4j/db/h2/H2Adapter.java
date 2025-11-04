@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013, 2016, 2019, 2021, 2023, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2013, 2016, 2019, 2021, 2023-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBIndex.Type;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.spi.db.DBAdapter;
+import org.eclipse.net4j.util.om.OMPlatform;
 
 import org.h2.api.ErrorCode;
 
@@ -38,7 +39,9 @@ public class H2Adapter extends DBAdapter
 
   public static final String VERSION = String.valueOf("2.3.230"); //$NON-NLS-1$
 
-  private static final String DEFAULT_SCHEMA_NAME = "public"; //$NON-NLS-1$
+  private static final boolean LOWER_CASE_SCHEMA_NAME = OMPlatform.INSTANCE.isProperty("org.eclipse.net4j.db.h2.H2Adapter.LOWER_CASE_SCHEMA_NAME"); //$NON-NLS-1$
+
+  private static final String DEFAULT_SCHEMA_NAME = LOWER_CASE_SCHEMA_NAME ? "public" : "PUBLIC"; //$NON-NLS-1$ //$NON-NLS-2$
 
   public H2Adapter()
   {
@@ -133,6 +136,12 @@ public class H2Adapter extends DBAdapter
   public String sqlRenameField(IDBField field, String oldName)
   {
     return "ALTER TABLE " + field.getTable() + " ALTER COLUMN " + oldName + " RENAME TO " + field;
+  }
+
+  @Override
+  protected String sqlCharIndexFunction()
+  {
+    return "LOCATE";
   }
 
   /**

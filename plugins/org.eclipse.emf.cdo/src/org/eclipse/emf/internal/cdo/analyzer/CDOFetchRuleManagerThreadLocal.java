@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2012, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2012, 2019, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class CDOFetchRuleManagerThreadLocal implements CDOFetchRuleManager
 {
-  private static final ThreadLocal<CDOFetchRuleManager> threadLocal = new ThreadLocal<>();
+  private static final ThreadLocal<CDOFetchRuleManager> THREAD_LOCAL = new ThreadLocal<>();
 
   public CDOFetchRuleManagerThreadLocal()
   {
@@ -32,17 +32,17 @@ public class CDOFetchRuleManagerThreadLocal implements CDOFetchRuleManager
 
   public static CDOFetchRuleManager getCurrent()
   {
-    return threadLocal.get();
+    return THREAD_LOCAL.get();
   }
 
   public static void join(CDOFetchRuleManager fetchRulemanager)
   {
-    threadLocal.set(fetchRulemanager);
+    THREAD_LOCAL.set(fetchRulemanager);
   }
 
   public static void leave()
   {
-    threadLocal.set(null);
+    THREAD_LOCAL.remove();
   }
 
   @Override

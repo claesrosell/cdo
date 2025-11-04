@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2012, 2016, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2008-2012, 2016, 2019, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,8 +19,6 @@ import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.util.TestAdapter;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
-
-import java.util.concurrent.Callable;
 
 /**
  * 250910: IllegalArgumentException: created > revised
@@ -52,19 +50,14 @@ public class Bugzilla_250910_Test extends AbstractCDOTest
       final CDOTransaction transaction2 = session2.openTransaction();
       company.setName(String.valueOf(i));
 
-      Company company2 = transaction2.syncExec(new Callable<Company>()
-      {
-        @Override
-        public Company call() throws Exception
-        {
-          transaction1.commit();
+      Company company2 = transaction2.sync().call(() -> {
+        transaction1.commit();
 
-          transaction2.options().setInvalidationNotificationEnabled(true);
-          Company company2 = (Company)CDOUtil.getEObject(transaction2.getObject(id, true));
-          company2.eAdapters().add(testAdapter);
+        transaction2.options().setInvalidationNotificationEnabled(true);
+        Company company21 = (Company)CDOUtil.getEObject(transaction2.getObject(id, true));
+        company21.eAdapters().add(testAdapter);
 
-          return company2;
-        }
+        return company21;
       });
 
       assertEquals(String.valueOf(i), company2.getName());

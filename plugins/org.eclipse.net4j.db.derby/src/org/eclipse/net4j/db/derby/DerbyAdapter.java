@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, 2015, 2016, 2019, 2021, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2008-2013, 2015, 2016, 2019, 2021, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -140,5 +140,11 @@ public abstract class DerbyAdapter extends DBAdapter
     // this is a CREATE or ALTER TABLE statement then '<columnName>' is not a column in the target table.
     String sqlState = ex.getSQLState();
     return "42X04".equals(sqlState) || super.isColumnNotFoundException(ex);
+  }
+
+  @Override
+  protected String sqlCharIndexFunction()
+  {
+    return "LOCATE";
   }
 }

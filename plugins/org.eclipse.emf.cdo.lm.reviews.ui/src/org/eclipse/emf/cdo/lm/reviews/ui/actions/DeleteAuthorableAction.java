@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.lm.reviews.Authorable;
 import org.eclipse.emf.cdo.lm.reviews.Comment;
 import org.eclipse.emf.cdo.lm.reviews.Topic;
 import org.eclipse.emf.cdo.lm.reviews.ui.bundle.OM;
+import org.eclipse.emf.cdo.lm.reviews.util.ReviewsOperations;
 import org.eclipse.emf.cdo.lm.ui.actions.LMAction;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -38,6 +39,23 @@ public class DeleteAuthorableAction extends LMAction<Authorable>
         "Delete the " + getTypeLabel(authorable) + ".", //
         "icons/wizban/Delete.png", //
         authorable);
+  }
+
+  @Override
+  public String getAuthorizableOperationID()
+  {
+    Authorable authorable = getContext();
+    if (authorable instanceof Topic)
+    {
+      return ReviewsOperations.DELETE_TOPIC;
+    }
+
+    if (authorable instanceof Comment)
+    {
+      return ReviewsOperations.DELETE_COMMENT;
+    }
+
+    return null;
   }
 
   @Override

@@ -2,33 +2,405 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="CDO Model Repository Documentation" topic="html/Overview.html">
-  <topic label="Overview" href="html/Overview.html" />
+  <topic label="Overview" href="html/Overview.html" icon="article">
+    <topic label="Functionality" href="html/Overview.html#Functionality" icon="chapter" />
+    <topic label="Architecture" href="html/Overview.html#Architecture" icon="chapter">
+      <topic label="Client Architecture" href="html/Overview.html#Client" icon="chapter" />
+      <topic label="Repository Architecture" href="html/Overview.html#Repository" icon="chapter" />
+    </topic>
+  </topic>
   <topic label="User's Guide" href="html/users/index.html">
-    <topic label="Elements of the User Interface" href="html/users/Doc01_UserInterface.html" />
-    <topic label="Managing Repositories" href="html/users/Doc02_ManagingRepositories.html" />
-    <topic label="Working with Branches" href="html/users/Doc03_UsingBranches.html" />
-    <topic label="Checking Out from Repositories" href="html/users/Doc04_CheckingOut.html" />
-    <topic label="Working with Checkouts" href="html/users/Doc05_UsingCheckouts.html" />
-    <topic label="Working with Folders and Resources" href="html/users/Doc06_UsingResources.html" />
-    <topic label="Working with Models and Model Elements" href="html/users/Doc07_UsingModels.html" />
-    <topic label="Collaborating in Real-Time" href="html/users/Doc08_Collaborating.html" />
-    <topic label="Understanding the Technical Background" href="html/users/Doc09_TechnicalBackground.html" />
+    <topic label="Elements of the User Interface" href="html/users/Doc01_UserInterface.html" icon="article">
+      <topic label="CDO Explorer Perspective" href="html/users/Doc01_UserInterface.html#Doc_ExplorerPerspective" icon="chapter" />
+      <topic label="CDO Repositories View" href="html/users/Doc01_UserInterface.html#Doc_RepositoriesView" icon="chapter" />
+      <topic label="CDO Administration View" href="html/users/Doc01_UserInterface.html#Doc_AdministrationView" icon="chapter" />
+      <topic label="CDO Collaboration View" href="html/users/Doc01_UserInterface.html#Doc_CollaborationView" icon="chapter" />
+      <topic label="CDO Watch List View" href="html/users/Doc01_UserInterface.html#Doc_WatchListView" icon="chapter" />
+      <topic label="CDO Time Machine View" href="html/users/Doc01_UserInterface.html#Doc_TimeMachineView" icon="chapter" />
+      <topic label="CDO Sessions View" href="html/users/Doc01_UserInterface.html#Doc_SessionsView" icon="chapter" />
+      <topic label="CDO Server Browser" href="html/users/Doc01_UserInterface.html#Doc_ServerBrowser" icon="chapter" />
+      <topic label="CDO Checkout Wizard" href="html/users/Doc01_UserInterface.html#Doc_CheckoutWizard" icon="chapter" />
+      <topic label="CDO Model Editor" href="html/users/Doc01_UserInterface.html#Doc_ModelEditor" icon="chapter" />
+      <topic label="Project Explorer Integration" href="html/users/Doc01_UserInterface.html#Doc_ProjectExplorerIntegration" icon="chapter" />
+      <topic label="Property Sheet Integration" href="html/users/Doc01_UserInterface.html#Doc_PropertySheetIntegration" icon="chapter" />
+      <topic label="History Integration" href="html/users/Doc01_UserInterface.html#Doc_HistoryIntegration" icon="chapter" />
+      <topic label="Compare Integration" href="html/users/Doc01_UserInterface.html#Doc_CompareIntegration" icon="chapter" />
+      <topic label="Forms Integration" href="html/users/Doc01_UserInterface.html#Doc_FormsIntegration" icon="chapter" />
+      <topic label="Preference Pages" href="html/users/Doc01_UserInterface.html#Doc_PreferencePages" icon="chapter" />
+    </topic>
+    <topic label="Managing Repositories" href="html/users/Doc02_ManagingRepositories.html" icon="article">
+      <topic label="Creating Repositories and Connections" href="html/users/Doc02_ManagingRepositories.html#Doc_CreatingRepositories" icon="chapter">
+        <topic label="Connecting to Remote Repositories" href="html/users/Doc02_ManagingRepositories.html#Doc_RemoteRepositories" icon="chapter" />
+        <topic label="Cloning Master Repositories" href="html/users/Doc02_ManagingRepositories.html#Doc_CloneRepositories" icon="chapter" />
+        <topic label="Creating Local Repositories" href="html/users/Doc02_ManagingRepositories.html#Doc_LocalRepositories" icon="chapter" />
+      </topic>
+      <topic label="Renaming Repository Connections" href="html/users/Doc02_ManagingRepositories.html#Doc_RenamingConnections" icon="chapter" />
+      <topic label="Deleting Repository Connections" href="html/users/Doc02_ManagingRepositories.html#Doc_DeletingConnections" icon="chapter" />
+      <topic label="Connecting and Disconnecting Repositories" href="html/users/Doc02_ManagingRepositories.html#Doc_ConnectingDisconnecting" icon="chapter" />
+      <topic label="Showing Repositories in Other Views" href="html/users/Doc02_ManagingRepositories.html#Doc_RepositoryShowIn" icon="chapter">
+        <topic label="Showing Repositories in the CDO Sessions View" href="html/users/Doc02_ManagingRepositories.html#Doc_RepositoryShowInSessions" icon="chapter" />
+        <topic label="Showing Repositories in the CDO Server Browser" href="html/users/Doc02_ManagingRepositories.html#Doc_RepositoryShowInServerBrowser" icon="chapter" />
+        <topic label="Showing Repositories in the Properties View" href="html/users/Doc02_ManagingRepositories.html#Doc_RepositoryShowInProperties" icon="chapter" />
+        <topic label="Showing Repositories in the History View" href="html/users/Doc02_ManagingRepositories.html#Doc_RepositoryShowInHistory" icon="chapter" />
+        <topic label="Showing Repositories in the Project Explorer" href="html/users/Doc02_ManagingRepositories.html#Doc_RepositoryShowInProjectExplorer" icon="chapter" />
+        <topic label="Showing Repositories in the System Explorer" href="html/users/Doc02_ManagingRepositories.html#Doc_RepositoryShowInSystemExplorer" icon="chapter" />
+      </topic>
+    </topic>
+    <topic label="Working with Branches" href="html/users/Doc03_UsingBranches.html" icon="article">
+      <topic label="Creating Branches" href="html/users/Doc03_UsingBranches.html#Doc_CreatingBranches" icon="chapter" />
+      <topic label="Renaming Branches" href="html/users/Doc03_UsingBranches.html#Doc_RenamingBranches" icon="chapter" />
+      <topic label="Deleting Branches" href="html/users/Doc03_UsingBranches.html#Doc_DeletingBranches" icon="chapter" />
+      <topic label="Showing Branches in the History View" href="html/users/Doc03_UsingBranches.html#Doc_BranchShowInHistory" icon="chapter" />
+    </topic>
+    <topic label="Checking Out from Repositories" href="html/users/Doc04_CheckingOut.html" icon="article">
+      <topic label="Selecting a Repository" href="html/users/Doc04_CheckingOut.html#Doc_CheckoutRepository" icon="chapter" />
+      <topic label="Selecting the Checkout Type" href="html/users/Doc04_CheckingOut.html#Doc_CheckoutType" icon="chapter">
+        <topic label="Online Transactional Checkouts" href="html/users/Doc04_CheckingOut.html#Doc_TransactionalCheckouts" icon="chapter" />
+        <topic label="Online Historical Checkouts" href="html/users/Doc04_CheckingOut.html#Doc_HistoricalCheckouts" icon="chapter" />
+        <topic label="Offline Checkouts" href="html/users/Doc04_CheckingOut.html#Doc_OfflineCheckouts" icon="chapter" />
+      </topic>
+      <topic label="Selecting the Branch Point" href="html/users/Doc04_CheckingOut.html#Doc_CheckoutBranchPoint" icon="chapter" />
+      <topic label="Selecting the Root Object" href="html/users/Doc04_CheckingOut.html#Doc_CheckoutRootObject" icon="chapter" />
+      <topic label="Naming the Checkout" href="html/users/Doc04_CheckingOut.html#Doc_CheckoutName" icon="chapter" />
+    </topic>
+    <topic label="Working with Checkouts" href="html/users/Doc05_UsingCheckouts.html" icon="article">
+      <topic label="Renaming Checkouts" href="html/users/Doc05_UsingCheckouts.html#Doc_RenamingCheckouts" icon="chapter" />
+      <topic label="Duplicating Checkouts" href="html/users/Doc05_UsingCheckouts.html#Doc_DuplicatingCheckouts" icon="chapter" />
+      <topic label="Opening and Closing Checkouts" href="html/users/Doc05_UsingCheckouts.html#Doc_OpeningClosing" icon="chapter" />
+      <topic label="Deleting Checkouts" href="html/users/Doc05_UsingCheckouts.html#Doc_DeletingCheckouts" icon="chapter" />
+      <topic label="Switching the Branch of a Checkout" href="html/users/Doc05_UsingCheckouts.html#Doc_SwitchingBranch" icon="chapter">
+        <topic label="Switching to a New Branch" href="html/users/Doc05_UsingCheckouts.html#Doc_SwitchNewBranch" icon="chapter" />
+        <topic label="Switching to an Other Branch" href="html/users/Doc05_UsingCheckouts.html#Doc_SwitchOtherBranch" icon="chapter" />
+      </topic>
+      <topic label="Switching the Time Stamp of a Checkout" href="html/users/Doc05_UsingCheckouts.html#Doc_SwitchingBranchPoint" icon="chapter">
+        <topic label="Switching to an Other Branch Point" href="html/users/Doc05_UsingCheckouts.html#Doc_SwitchOtherBranchPoint" icon="chapter" />
+        <topic label="Switching to a Commit" href="html/users/Doc05_UsingCheckouts.html#Doc_SwitchCommit" icon="chapter" />
+      </topic>
+      <topic label="Comparing Checkouts" href="html/users/Doc05_UsingCheckouts.html#Doc_ComparingCheckouts" icon="chapter">
+        <topic label="Comparing with an Other Branch" href="html/users/Doc05_UsingCheckouts.html#Doc_CompareOtherBranch" icon="chapter" />
+        <topic label="Comparing with an Other Branch Point" href="html/users/Doc05_UsingCheckouts.html#Doc_CompareOtherBranchPoint" icon="chapter" />
+        <topic label="Comparing with a Commit" href="html/users/Doc05_UsingCheckouts.html#Doc_CompareCommit" icon="chapter" />
+      </topic>
+      <topic label="Merging Checkouts" href="html/users/Doc05_UsingCheckouts.html#Doc_MergingCheckouts" icon="chapter">
+        <topic label="Merging from an Other Branch" href="html/users/Doc05_UsingCheckouts.html#Doc_MergeOtherBranch" icon="chapter" />
+        <topic label="Merging from an Other Branch Point" href="html/users/Doc05_UsingCheckouts.html#Doc_MergeOtherBranchPoint" icon="chapter" />
+        <topic label="Merging from a Commit" href="html/users/Doc05_UsingCheckouts.html#Doc_MergeCommit" icon="chapter" />
+      </topic>
+      <topic label="Showing Checkouts in Other Views" href="html/users/Doc05_UsingCheckouts.html#Doc_CheckoutShowIn" icon="chapter">
+        <topic label="Showing Checkouts in the CDO Sessions View" href="html/users/Doc05_UsingCheckouts.html#Doc_CheckoutShowInSessions" icon="chapter" />
+        <topic label="Showing Checkouts in the CDO Time Machine View" href="html/users/Doc05_UsingCheckouts.html#Doc_CheckoutShowInTimeMachine" icon="chapter" />
+        <topic label="Showing Checkouts in the CDO Server Browser" href="html/users/Doc05_UsingCheckouts.html#Doc_CheckoutShowInServerBrowser" icon="chapter" />
+        <topic label="Showing Checkouts in the Properties View" href="html/users/Doc05_UsingCheckouts.html#Doc_CheckoutShowInProperties" icon="chapter" />
+        <topic label="Showing Checkouts in the History View" href="html/users/Doc05_UsingCheckouts.html#Doc_CheckoutShowInHistory" icon="chapter" />
+        <topic label="Showing Checkouts in the System Explorer" href="html/users/Doc05_UsingCheckouts.html#Doc_CheckoutShowInSystemExplorer" icon="chapter" />
+      </topic>
+      <topic label="Working with Offline Checkouts" href="html/users/Doc05_UsingCheckouts.html#Doc_UsingOfflineCheckouts" icon="chapter">
+        <topic label="Updating an Offline Checkout" href="html/users/Doc05_UsingCheckouts.html#Doc_OfflineUpdate" icon="chapter" />
+        <topic label="Checking In an Offline Checkout" href="html/users/Doc05_UsingCheckouts.html#Doc_OfflineCheckin" icon="chapter" />
+        <topic label="Reverting an Offline Checkout" href="html/users/Doc05_UsingCheckouts.html#Doc_OfflineRevert" icon="chapter" />
+      </topic>
+    </topic>
+    <topic label="Working with Folders and Resources" href="html/users/Doc06_UsingResources.html" icon="article">
+      <topic label="Creating Resource Nodes" href="html/users/Doc06_UsingResources.html#Doc_CreatingResourceNodes" icon="chapter">
+        <topic label="Creating Folders" href="html/users/Doc06_UsingResources.html#Doc_CreatingFolders" icon="chapter" />
+        <topic label="Creating Model Resources" href="html/users/Doc06_UsingResources.html#Doc_CreatingModelResources" icon="chapter" />
+        <topic label="Creating Text Files" href="html/users/Doc06_UsingResources.html#Doc_CreatingTextFiles" icon="chapter" />
+        <topic label="Creating Binary Files" href="html/users/Doc06_UsingResources.html#Doc_CreatingBinaryFiles" icon="chapter" />
+      </topic>
+      <topic label="Renaming Resource Nodes" href="html/users/Doc06_UsingResources.html#Doc_RenamingResourceNodes" icon="chapter" />
+      <topic label="Moving and Copying Resource Nodes within a Checkout" href="html/users/Doc06_UsingResources.html#Doc_MovingResourceNodes" icon="chapter" />
+      <topic label="Moving and Copying Resource Nodes between Checkouts and Beyond" href="html/users/Doc06_UsingResources.html#Doc_TransferingResourceNodes" icon="chapter" />
+      <topic label="Deleting Resource Nodes" href="html/users/Doc06_UsingResources.html#Doc_DeletingResourceNodes" icon="chapter" />
+    </topic>
+    <topic label="Working with Models and Model Elements" href="html/users/Doc07_UsingModels.html" icon="article">
+      <topic label="Creating Model Elements" href="html/users/Doc07_UsingModels.html#Doc_CreatingModelElements" icon="chapter">
+        <topic label="Creating Root Model Elements" href="html/users/Doc07_UsingModels.html#Doc_CreatingRootElements" icon="chapter" />
+        <topic label="Creating Nested Model Elements" href="html/users/Doc07_UsingModels.html#Doc_CreatingNestedElements" icon="chapter" />
+      </topic>
+      <topic label="Moving and Copying Model Elements within a Checkout" href="html/users/Doc07_UsingModels.html#Doc_MovingModelElements" icon="chapter" />
+      <topic label="Moving and Copying Model Elements between Checkouts and Beyond" href="html/users/Doc07_UsingModels.html#Doc_TransferingModelElements" icon="chapter" />
+      <topic label="Deleting Model Elements" href="html/users/Doc07_UsingModels.html#Doc_DeletingModelElements" icon="chapter" />
+      <topic label="Editing Model Elements in a Dialog" href="html/users/Doc07_UsingModels.html#Doc_EditingModelElements" icon="chapter" />
+      <topic label="Editing Model Elements in an Editor" href="html/users/Doc07_UsingModels.html#Doc_EditingModelElementsEditor" icon="chapter" />
+    </topic>
+    <topic label="Collaborating in Real-Time" href="html/users/Doc08_Collaborating.html" icon="article">
+      <topic label="Optimistic Locking" href="html/users/Doc08_Collaborating.html#Doc_OptimisticLocking" icon="chapter">
+        <topic label="Early Conflict Detection" href="html/users/Doc08_Collaborating.html#Doc_EarlyConflictDetection" icon="chapter" />
+        <topic label="Automatic Conflict Resolution" href="html/users/Doc08_Collaborating.html#Doc_AutomaticConflictResolution" icon="chapter" />
+        <topic label="Interactive Conflict Resolution" href="html/users/Doc08_Collaborating.html#Doc_InteractiveConflictResolution" icon="chapter" />
+      </topic>
+      <topic label="Pessimistic Locking" href="html/users/Doc08_Collaborating.html#Doc_PessimisticLocking" icon="chapter">
+        <topic label="Tree Locking" href="html/users/Doc08_Collaborating.html#Doc_TreeLocking" icon="chapter" />
+      </topic>
+      <topic label="Automatic Locking" href="html/users/Doc08_Collaborating.html#Doc_AutomaticLocking" icon="chapter" />
+      <topic label="Automatic Committing" href="html/users/Doc08_Collaborating.html#Doc_AutomaticCommitting" icon="chapter" />
+    </topic>
+    <topic label="Understanding the Technical Background" href="html/users/Doc09_TechnicalBackground.html" icon="article">
+      <topic label="Technical Background of Model Elements" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundModelElements" icon="chapter">
+        <topic label="Native Models" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundNativeModels" icon="chapter" />
+        <topic label="Legacy Models" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundLegacyModels" icon="chapter" />
+        <topic label="Dynamic Models" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundDynamicModels" icon="chapter" />
+      </topic>
+      <topic label="Technical Background of Repositories" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundRepositories" icon="chapter" />
+      <topic label="Technical Background of Checkouts" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundCheckouts" icon="chapter" />
+      <topic label="Technical Background of Sessions" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundSessions" icon="chapter" />
+      <topic label="Technical Background of Views" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundViews" icon="chapter" />
+      <topic label="Technical Background of Transactions" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundTransactions" icon="chapter" />
+      <topic label="Technical Background of the Compare Integration" href="html/users/Doc09_TechnicalBackground.html#Doc_BackgroundCompare" icon="chapter" />
+    </topic>
   </topic>
   <topic label="Operator's Guide" href="html/operators/index.html">
-    <topic label="Operating a CDO Server" href="html/operators/Doc00_OperatingServer.html" />
-    <topic label="Configuring Repositories" href="html/operators/Doc01_ConfiguringRepositories.html" />
-    <topic label="Configuring Acceptors" href="html/operators/Doc02_ConfiguringAcceptors.html" />
+    <topic label="Operating a CDO Server" href="html/operators/Doc00_OperatingServer.html" icon="article">
+      <topic label="Deploying a CDO Server" href="html/operators/Doc00_OperatingServer.html#Doc_ServerDeploy" icon="chapter" />
+      <topic label="Starting a CDO Server" href="html/operators/Doc00_OperatingServer.html#Doc_ServerStart" icon="chapter" />
+      <topic label="Stopping a CDO Server" href="html/operators/Doc00_OperatingServer.html#Doc_ServerStop" icon="chapter" />
+    </topic>
+    <topic label="Configuring Repositories" href="html/operators/Doc01_ConfiguringRepositories.html" icon="article">
+      <topic label="Element repository" href="html/operators/Doc01_ConfiguringRepositories.html#Element_repository" icon="chapter">
+        <topic label="Property overrideUUID" href="html/operators/Doc01_ConfiguringRepositories.html#Property_overrideUUID" icon="chapter" />
+        <topic label="Property supportingAudits" href="html/operators/Doc01_ConfiguringRepositories.html#Property_supportingAudits" icon="chapter" />
+        <topic label="Property supportingBranches" href="html/operators/Doc01_ConfiguringRepositories.html#Property_supportingBranches" icon="chapter" />
+        <topic label="Property supportingEcore" href="html/operators/Doc01_ConfiguringRepositories.html#Property_supportingEcore" icon="chapter" />
+        <topic label="Property supportingUnits" href="html/operators/Doc01_ConfiguringRepositories.html#Property_supportingUnits" icon="chapter" />
+        <topic label="Property checkUnitMoves" href="html/operators/Doc01_ConfiguringRepositories.html#Property_checkUnitMoves" icon="chapter" />
+        <topic label="Property ensureReferentialIntegrity" href="html/operators/Doc01_ConfiguringRepositories.html#Property_ensureReferentialIntegrity" icon="chapter" />
+        <topic label="Property serializeCommits" href="html/operators/Doc01_ConfiguringRepositories.html#Property_serializeCommits" icon="chapter" />
+        <topic label="Property allowInterruptRunningQueries" href="html/operators/Doc01_ConfiguringRepositories.html#Property_allowInterruptRunningQueries" icon="chapter" />
+        <topic label="Property idGenerationLocation" href="html/operators/Doc01_ConfiguringRepositories.html#Property_idGenerationLocation" icon="chapter" />
+      </topic>
+      <topic label="Element securityManager" href="html/operators/Doc01_ConfiguringRepositories.html#Element_securityManager" icon="chapter" />
+      <topic label="Element authenticator" href="html/operators/Doc01_ConfiguringRepositories.html#Element_authenticator" icon="chapter" />
+      <topic label="Element initialPackage" href="html/operators/Doc01_ConfiguringRepositories.html#Element_initialPackage" icon="chapter" />
+      <topic label="Element store" href="html/operators/Doc01_ConfiguringRepositories.html#Element_store" icon="chapter">
+        <topic label="Property schemaName" href="html/operators/Doc01_ConfiguringRepositories.html#Property_schemaName" icon="chapter" />
+        <topic label="Property prependSchemaName" href="html/operators/Doc01_ConfiguringRepositories.html#Property_prependSchemaName" icon="chapter" />
+        <topic label="Property createSchemaIfNeeded" href="html/operators/Doc01_ConfiguringRepositories.html#Property_createSchemaIfNeeded" icon="chapter" />
+        <topic label="Property connectionKeepAlivePeriod" href="html/operators/Doc01_ConfiguringRepositories.html#Property_connectionKeepAlivePeriod" icon="chapter" />
+        <topic label="Property connectionRetryCount" href="html/operators/Doc01_ConfiguringRepositories.html#Property_connectionRetryCount" icon="chapter" />
+        <topic label="Property connectionRetrySeconds" href="html/operators/Doc01_ConfiguringRepositories.html#Property_connectionRetrySeconds" icon="chapter" />
+        <topic label="Property readerPoolCapacity" href="html/operators/Doc01_ConfiguringRepositories.html#Property_readerPoolCapacity" icon="chapter" />
+        <topic label="Property writerPoolCapacity" href="html/operators/Doc01_ConfiguringRepositories.html#Property_writerPoolCapacity" icon="chapter" />
+        <topic label="Property dropAllDataOnActivate" href="html/operators/Doc01_ConfiguringRepositories.html#Property_dropAllDataOnActivate" icon="chapter" />
+      </topic>
+      <topic label="Element mappingStrategy" href="html/operators/Doc01_ConfiguringRepositories.html#Element_mappingStrategy" icon="chapter">
+        <topic label="Property toManyReferences" href="html/operators/Doc01_ConfiguringRepositories.html#Property_toManyReferences" icon="chapter" />
+        <topic label="Property maxTableNameLength" href="html/operators/Doc01_ConfiguringRepositories.html#Property_maxTableNameLength" icon="chapter" />
+        <topic label="Property maxFieldNameLength" href="html/operators/Doc01_ConfiguringRepositories.html#Property_maxFieldNameLength" icon="chapter" />
+        <topic label="Property tableNamePrefix" href="html/operators/Doc01_ConfiguringRepositories.html#Property_tableNamePrefix" icon="chapter" />
+        <topic label="Property qualifiedNames" href="html/operators/Doc01_ConfiguringRepositories.html#Property_qualifiedNames" icon="chapter" />
+        <topic label="Property forceNamesWithID" href="html/operators/Doc01_ConfiguringRepositories.html#Property_forceNamesWithID" icon="chapter" />
+        <topic label="Property fieldConstructionTracking" href="html/operators/Doc01_ConfiguringRepositories.html#Property_fieldConstructionTracking" icon="chapter" />
+        <topic label="Property objectTypeCacheSize" href="html/operators/Doc01_ConfiguringRepositories.html#Property_objectTypeCacheSize" icon="chapter" />
+        <topic label="Property columnTypeModifier" href="html/operators/Doc01_ConfiguringRepositories.html#Property_columnTypeModifier" icon="chapter" />
+        <topic label="Property typeMappingProvider" href="html/operators/Doc01_ConfiguringRepositories.html#Property_typeMappingProvider" icon="chapter" />
+        <topic label="Property forceIndexes" href="html/operators/Doc01_ConfiguringRepositories.html#Property_forceIndexes" icon="chapter" />
+        <topic label="Property eagerTableCreation" href="html/operators/Doc01_ConfiguringRepositories.html#Property_eagerTableCreation" icon="chapter" />
+        <topic label="Property withRanges" href="html/operators/Doc01_ConfiguringRepositories.html#Property_withRanges" icon="chapter" />
+        <topic label="Property copyOnBranch" href="html/operators/Doc01_ConfiguringRepositories.html#Property_copyOnBranch" icon="chapter" />
+        <topic label="Property forceZeroBasedIndex" href="html/operators/Doc01_ConfiguringRepositories.html#Property_forceZeroBasedIndex" icon="chapter" />
+      </topic>
+      <topic label="Element dbAdapter" href="html/operators/Doc01_ConfiguringRepositories.html#Element_dbAdapter" icon="chapter" />
+      <topic label="Element dataSource" href="html/operators/Doc01_ConfiguringRepositories.html#Element_dataSource" icon="chapter" />
+    </topic>
+    <topic label="Configuring Acceptors" href="html/operators/Doc02_ConfiguringAcceptors.html" icon="article">
+      <topic label="Element acceptor" href="html/operators/Doc02_ConfiguringAcceptors.html#Element_acceptor" icon="chapter" />
+      <topic label="Element negotiator" href="html/operators/Doc02_ConfiguringAcceptors.html#Element_negotiator" icon="chapter" />
+    </topic>
     <topic label="Managing Security" href="https://wiki.eclipse.org/CDO/Security_Manager" icon="external" />
   </topic>
   <topic label="Programmer's Guide" href="html/programmers/index.html">
+    <topic label="Introduction" href="html/programmers/Doc01_Introduction.html" icon="article" />
+    <topic label="Understanding the Key Concepts" href="html/programmers/Doc02_KeyConcepts.html" icon="article">
+      <topic label="Models" href="html/programmers/Doc02_KeyConcepts.html#ConceptModels" icon="chapter" />
+      <topic label="Meta Models" href="html/programmers/Doc02_KeyConcepts.html#ConceptMetaModels" icon="chapter" />
+      <topic label="Model Objects" href="html/programmers/Doc02_KeyConcepts.html#ConceptModelObjects" icon="chapter" />
+      <topic label="Resources" href="html/programmers/Doc02_KeyConcepts.html#ConceptResources" icon="chapter" />
+      <topic label="Branches" href="html/programmers/Doc02_KeyConcepts.html#ConceptBranches" icon="chapter" />
+      <topic label="Branch Points" href="html/programmers/Doc02_KeyConcepts.html#ConceptBranchPoints" icon="chapter" />
+      <topic label="Commits" href="html/programmers/Doc02_KeyConcepts.html#ConceptCommits" icon="chapter" />
+      <topic label="Revisions" href="html/programmers/Doc02_KeyConcepts.html#ConceptRevisions" icon="chapter" />
+      <topic label="Revision Deltas" href="html/programmers/Doc02_KeyConcepts.html#ConceptRevisionDeltas" icon="chapter" />
+      <topic label="Repositories" href="html/programmers/Doc02_KeyConcepts.html#ConceptRepositories" icon="chapter" />
+      <topic label="Sessions" href="html/programmers/Doc02_KeyConcepts.html#ConceptSessions" icon="chapter" />
+      <topic label="Views" href="html/programmers/Doc02_KeyConcepts.html#ConceptViews" icon="chapter" />
+      <topic label="Transactions" href="html/programmers/Doc02_KeyConcepts.html#ConceptTransactions" icon="chapter" />
+      <topic label="Change Notifications" href="html/programmers/Doc02_KeyConcepts.html#ConceptChangeNotifications" icon="chapter" />
+    </topic>
+    <topic label="Preparing the Workspace" href="html/programmers/Doc03_PreparingWorkspace.html" icon="article">
+      <topic label="Using the Oomph Setup Engine" href="html/programmers/Doc03_PreparingWorkspace.html#UsingOomph" icon="chapter" />
+    </topic>
+    <topic label="Preparing the Models" href="html/programmers/Doc04_PreparingModels.html" icon="article">
+      <topic label="Creating an Ecore Model" href="html/programmers/Doc04_PreparingModels.html#Doc_CreatingEcore" icon="chapter" />
+      <topic label="Using the CDO Model Importer" href="html/programmers/Doc04_PreparingModels.html#Doc_UsingImporter" icon="chapter" />
+      <topic label="Using the CDO Model Migrator" href="html/programmers/Doc04_PreparingModels.html#Doc_UsingMigrator" icon="chapter" />
+      <topic label="Migrating a GenModel Manually" href="html/programmers/Doc04_PreparingModels.html#Doc_MigratingManually" icon="chapter" />
+      <topic label="Generating a Model" href="html/programmers/Doc04_PreparingModels.html#Doc_GeneratingModel" icon="chapter" />
+      <topic label="Modifying Generated Getters and Setters" href="html/programmers/Doc04_PreparingModels.html#Doc_ModifyingGeneratedCode" icon="chapter" />
+    </topic>
     <topic label="Developing Client Applications" href="html/programmers/client/index.html">
-      <topic label="Understanding the Architecture of a Client Application" href="html/programmers/client/Doc01_Architecture.html" />
-      <topic label="Preparing EMF Models for CDO" href="html/programmers/client/Doc02_PreparingModels.html" />
-      <topic label="View Providers" href="html/programmers/client/Doc03_ViewProviders.html" />
+      <topic label="Architecture of a Client Application" href="html/programmers/client/Doc01_ArchitectureClientApplication.html" icon="article">
+        <topic label="OSGi" href="html/programmers/client/Doc01_ArchitectureClientApplication.html#OSGi" icon="chapter" />
+        <topic label="EMF" href="html/programmers/client/Doc01_ArchitectureClientApplication.html#EMF" icon="chapter" />
+        <topic label="CDO Client" href="html/programmers/client/Doc01_ArchitectureClientApplication.html#Client" icon="chapter" />
+        <topic label="Net4j Core" href="html/programmers/client/Doc01_ArchitectureClientApplication.html#Net4j" icon="chapter" />
+        <topic label="Models" href="html/programmers/client/Doc01_ArchitectureClientApplication.html#Models" icon="chapter" />
+        <topic label="Protocol" href="html/programmers/client/Doc01_ArchitectureClientApplication.html#Protocol" icon="chapter" />
+        <topic label="Transport" href="html/programmers/client/Doc01_ArchitectureClientApplication.html#Transport" icon="chapter" />
+      </topic>
+      <topic label="Anatomy of a Model Object" href="html/programmers/client/Doc02_AnatomyModelObject.html" icon="article">
+        <topic label="CDOID" href="html/programmers/client/Doc02_AnatomyModelObject.html#DocID" icon="chapter" />
+        <topic label="CDORevision" href="html/programmers/client/Doc02_AnatomyModelObject.html#DocRevision" icon="chapter" />
+        <topic label="CDOView" href="html/programmers/client/Doc02_AnatomyModelObject.html#DocView" icon="chapter" />
+        <topic label="CDOState" href="html/programmers/client/Doc02_AnatomyModelObject.html#DocState" icon="chapter" />
+      </topic>
+      <topic label="Working with Sessions" href="html/programmers/client/Doc03_WorkingWithSessions.html" icon="article">
+        <topic label="Creating and Configuring Sessions" href="html/programmers/client/Doc03_WorkingWithSessions.html#CreatingAndConfiguringSessions" icon="chapter">
+          <topic label="Session Configurations" href="html/programmers/client/Doc03_WorkingWithSessions.html#SessionConfigurations" icon="chapter" />
+          <topic label="Net4j Connectors" href="html/programmers/client/Doc03_WorkingWithSessions.html#Net4jConnectors" icon="chapter" />
+          <topic label="Authentication and Security" href="html/programmers/client/Doc03_WorkingWithSessions.html#AuthenticationAndSecurity" icon="chapter" />
+          <topic label="Recovering from Disconnects" href="html/programmers/client/Doc03_WorkingWithSessions.html#RecoveringFromDisconnects" icon="chapter" />
+          <topic label="Passive Updates and Refreshing" href="html/programmers/client/Doc03_WorkingWithSessions.html#PassiveUpdatesAndRefreshing" icon="chapter" />
+          <topic label="Waiting For Updates" href="html/programmers/client/Doc03_WorkingWithSessions.html#WaitingForUpdates" icon="chapter" />
+        </topic>
+        <topic label="View Management" href="html/programmers/client/Doc03_WorkingWithSessions.html#ViewManagement" icon="chapter">
+          <topic label="Purpose of Views and Transactions" href="html/programmers/client/Doc03_WorkingWithSessions.html#PurposeOfViewsAndTransactions" icon="chapter" />
+          <topic label="Branch Points and the View Target" href="html/programmers/client/Doc03_WorkingWithSessions.html#BranchPointsAndTheViewTarget" icon="chapter" />
+          <topic label="Opening Views and Transactions" href="html/programmers/client/Doc03_WorkingWithSessions.html#OpeningViewsAndTransactions" icon="chapter" />
+          <topic label="Accessing Open Views" href="html/programmers/client/Doc03_WorkingWithSessions.html#AccessingOpenViews" icon="chapter" />
+          <topic label="Finding Views by ID" href="html/programmers/client/Doc03_WorkingWithSessions.html#FindingViewsByID" icon="chapter" />
+          <topic label="Listening for View-Related Events" href="html/programmers/client/Doc03_WorkingWithSessions.html#ListeningForViewEvents" icon="chapter" />
+          <topic label="Closing Views" href="html/programmers/client/Doc03_WorkingWithSessions.html#ClosingViews" icon="chapter" />
+        </topic>
+        <topic label="Authorizable Operations" href="html/programmers/client/Doc03_WorkingWithSessions.html#AuthorizableOperations" icon="chapter" />
+        <topic label="Client and Server Entities" href="html/programmers/client/Doc03_WorkingWithSessions.html#ClientAndServerEntities" icon="chapter" />
+        <topic label="Session Facilities" href="html/programmers/client/Doc03_WorkingWithSessions.html#SessionFacilities" icon="chapter">
+          <topic label="Repository Info" href="html/programmers/client/Doc03_WorkingWithSessions.html#RepositoryInfo" icon="chapter" />
+          <topic label="Package Registry" href="html/programmers/client/Doc03_WorkingWithSessions.html#PackageRegistry" icon="chapter" />
+          <topic label="Revision Manager" href="html/programmers/client/Doc03_WorkingWithSessions.html#RevisionManager" icon="chapter">
+            <topic label="Working with Revisions" href="html/programmers/client/Doc03_WorkingWithSessions.html#WorkingWithRevisions" icon="chapter" />
+            <topic label="Pre-fetching Revisions" href="html/programmers/client/Doc03_WorkingWithSessions.html#PrefetchingRevisions" icon="chapter" />
+          </topic>
+          <topic label="Branch Manager" href="html/programmers/client/Doc03_WorkingWithSessions.html#BranchManager" icon="chapter">
+            <topic label="Working with Branches" href="html/programmers/client/Doc03_WorkingWithSessions.html#WorkingWithBranches" icon="chapter" />
+            <topic label="Working with Tags" href="html/programmers/client/Doc03_WorkingWithSessions.html#WorkingWithTags" icon="chapter" />
+          </topic>
+          <topic label="Fetch Rule Manager" href="html/programmers/client/Doc03_WorkingWithSessions.html#FetchRuleManager" icon="chapter" />
+          <topic label="Commit Info Manager" href="html/programmers/client/Doc03_WorkingWithSessions.html#CommitInfoManager" icon="chapter" />
+          <topic label="User Info Manager" href="html/programmers/client/Doc03_WorkingWithSessions.html#UserInfoManager" icon="chapter" />
+          <topic label="Remote Session Manager" href="html/programmers/client/Doc03_WorkingWithSessions.html#RemoteSessionManager" icon="chapter">
+            <topic label="Exchanging Messages With Other Sessions" href="html/programmers/client/Doc03_WorkingWithSessions.html#RemoteMessages" icon="chapter" />
+            <topic label="Collaborating on Shared Topics" href="html/programmers/client/Doc03_WorkingWithSessions.html#RemoteTopics" icon="chapter" />
+            <topic label="Integrating Topics With Your User Interface" href="html/programmers/client/Doc03_WorkingWithSessions.html#IntegratingTopicsWithUI" icon="chapter" />
+          </topic>
+        </topic>
+        <topic label="Session Events" href="html/programmers/client/Doc03_WorkingWithSessions.html#SessionEvents" icon="chapter" />
+        <topic label="Session Options" href="html/programmers/client/Doc03_WorkingWithSessions.html#SessionOptions" icon="chapter">
+          <topic label="Generated Package Emulation" href="html/programmers/client/Doc03_WorkingWithSessions.html#GeneratedPackageEmulation" icon="chapter" />
+          <topic label="Passive Update Enabled" href="html/programmers/client/Doc03_WorkingWithSessions.html#PassiveUpdateEnabled" icon="chapter" />
+          <topic label="Passive Update Mode" href="html/programmers/client/Doc03_WorkingWithSessions.html#Doc_PassiveUpdateMode" icon="chapter" />
+          <topic label="Lock Notification Enabled" href="html/programmers/client/Doc03_WorkingWithSessions.html#LockNotificationEnabled" icon="chapter" />
+          <topic label="Lock Notification Mode" href="html/programmers/client/Doc03_WorkingWithSessions.html#Doc_LockNotificationMode" icon="chapter" />
+          <topic label="Collection Loading Policy" href="html/programmers/client/Doc03_WorkingWithSessions.html#CollectionLoadingPolicy" icon="chapter" />
+          <topic label="Large Object Cache" href="html/programmers/client/Doc03_WorkingWithSessions.html#LargeObjectCache" icon="chapter" />
+          <topic label="Permission Updater" href="html/programmers/client/Doc03_WorkingWithSessions.html#PermissionUpdater" icon="chapter" />
+          <topic label="Delegable View Lock Enabled" href="html/programmers/client/Doc03_WorkingWithSessions.html#DelegableViewLockEnabled" icon="chapter" />
+          <topic label="Prefetch Send Max Revision Keys" href="html/programmers/client/Doc03_WorkingWithSessions.html#PrefetchSendMaxRevisionKeys" icon="chapter" />
+        </topic>
+        <topic label="Session Properties" href="html/programmers/client/Doc03_WorkingWithSessions.html#SessionProperties" icon="chapter" />
+        <topic label="Session Registry" href="html/programmers/client/Doc03_WorkingWithSessions.html#SessionRegistry" icon="chapter" />
+      </topic>
+      <topic label="Working with Views" href="html/programmers/client/Doc04_WorkingWithViews.html" icon="article">
+        <topic label="Understanding Views and Their Types" href="html/programmers/client/Doc04_WorkingWithViews.html#UnderstandingViewsAndTheirTypes" icon="chapter" />
+        <topic label="Opening and Closing Views" href="html/programmers/client/Doc04_WorkingWithViews.html#OpeningAndClosingViews" icon="chapter" />
+        <topic label="Thread Safety" href="html/programmers/client/Doc04_WorkingWithViews.html#ThreadSafety" icon="chapter">
+          <topic label="Using Critical Sections" href="html/programmers/client/Doc04_WorkingWithViews.html#UsingCriticalSections" icon="chapter" />
+          <topic label="Using a Delegable Lock" href="html/programmers/client/Doc04_WorkingWithViews.html#UsingDelegableLock" icon="chapter" />
+        </topic>
+        <topic label="Understanding the CDO File System" href="html/programmers/client/Doc04_WorkingWithViews.html#UnderstandingTheCDOFileSystem" icon="chapter">
+          <topic label="The Root Resource" href="html/programmers/client/Doc04_WorkingWithViews.html#TheRootResource" icon="chapter" />
+          <topic label="Resource Folders" href="html/programmers/client/Doc04_WorkingWithViews.html#ResourceFolders" icon="chapter" />
+          <topic label="Model Resources" href="html/programmers/client/Doc04_WorkingWithViews.html#ModelResources" icon="chapter" />
+          <topic label="Binary Resources" href="html/programmers/client/Doc04_WorkingWithViews.html#BinaryResources" icon="chapter" />
+          <topic label="Text Resources" href="html/programmers/client/Doc04_WorkingWithViews.html#TextResources" icon="chapter" />
+        </topic>
+        <topic label="Resource Sets and Their Usage" href="html/programmers/client/Doc04_WorkingWithViews.html#ResourceSetsAndTheirUsage" icon="chapter" />
+        <topic label="Navigating Models" href="html/programmers/client/Doc04_WorkingWithViews.html#NavigatingModels" icon="chapter" />
+        <topic label="Waiting For Updates" href="html/programmers/client/Doc04_WorkingWithViews.html#WaitingForUpdates" icon="chapter" />
+        <topic label="Querying Resources" href="html/programmers/client/Doc04_WorkingWithViews.html#QueryingResources" icon="chapter" />
+        <topic label="Querying Model Objects" href="html/programmers/client/Doc04_WorkingWithViews.html#QueryingModelObjects" icon="chapter" />
+        <topic label="Querying Cross References" href="html/programmers/client/Doc04_WorkingWithViews.html#QueryingCrossReferences" icon="chapter" />
+        <topic label="Custom Queries" href="html/programmers/client/Doc04_WorkingWithViews.html#CustomQueries" icon="chapter" />
+        <topic label="Units" href="html/programmers/client/Doc04_WorkingWithViews.html#Units" icon="chapter" />
+        <topic label="View Events" href="html/programmers/client/Doc04_WorkingWithViews.html#ViewEvents" icon="chapter" />
+        <topic label="View Options" href="html/programmers/client/Doc04_WorkingWithViews.html#ViewOptions" icon="chapter" />
+        <topic label="View Properties" href="html/programmers/client/Doc04_WorkingWithViews.html#ViewProperties" icon="chapter" />
+      </topic>
+      <topic label="Working with Transactions" href="html/programmers/client/Doc05_WorkingWithTransactions.html" icon="article">
+        <topic label="Creating and Managing Transactions" href="html/programmers/client/Doc05_WorkingWithTransactions.html#CreatingAndManagingTransactions" icon="chapter" />
+        <topic label="Committing and Rolling Back Changes" href="html/programmers/client/Doc05_WorkingWithTransactions.html#CommittingAndRollingBackChanges" icon="chapter">
+          <topic label="Commit Comments" href="html/programmers/client/Doc05_WorkingWithTransactions.html#CommitComments" icon="chapter" />
+          <topic label="Partial Commits" href="html/programmers/client/Doc05_WorkingWithTransactions.html#PartialCommits" icon="chapter" />
+        </topic>
+        <topic label="Dirtiness Detection" href="html/programmers/client/Doc05_WorkingWithTransactions.html#DirtinessDetection" icon="chapter" />
+        <topic label="Conflict Detection and Resolution" href="html/programmers/client/Doc05_WorkingWithTransactions.html#ConflictDetectionAndResolution" icon="chapter" />
+        <topic label="Merging" href="html/programmers/client/Doc05_WorkingWithTransactions.html#Merging" icon="chapter" />
+        <topic label="Using Save Points" href="html/programmers/client/Doc05_WorkingWithTransactions.html#UsingSavePoints" icon="chapter" />
+        <topic label="Reverting Changes" href="html/programmers/client/Doc05_WorkingWithTransactions.html#RevertingChanges" icon="chapter" />
+        <topic label="Exporting and Importing Changes" href="html/programmers/client/Doc05_WorkingWithTransactions.html#ExportingAndImportingChanges" icon="chapter" />
+        <topic label="Push Transactions" href="html/programmers/client/Doc05_WorkingWithTransactions.html#PushTransactions" icon="chapter" />
+        <topic label="Considering Dirty Objects In Queries" href="html/programmers/client/Doc05_WorkingWithTransactions.html#ConsideringDirtyObjectsInQueries" icon="chapter" />
+        <topic label="Transaction Options" href="html/programmers/client/Doc05_WorkingWithTransactions.html#TransactionOptions" icon="chapter" />
+      </topic>
+      <topic label="Locking" href="html/programmers/client/Doc06_Locking.html" icon="article">
+        <topic label="Lock Types" href="html/programmers/client/Doc06_Locking.html#LockTypes" icon="chapter">
+          <topic label="Read Locks" href="html/programmers/client/Doc06_Locking.html#ReadLocks" icon="chapter" />
+          <topic label="Write Locks" href="html/programmers/client/Doc06_Locking.html#WriteLocks" icon="chapter" />
+          <topic label="Write Option Locks" href="html/programmers/client/Doc06_Locking.html#WriteOptionLocks" icon="chapter" />
+        </topic>
+        <topic label="Optimistic Locking" href="html/programmers/client/Doc06_Locking.html#OptimisticLocking" icon="chapter" />
+        <topic label="Pessimistic Locking" href="html/programmers/client/Doc06_Locking.html#PessimisticLocking" icon="chapter" />
+        <topic label="Durable Locking" href="html/programmers/client/Doc06_Locking.html#DurableLocking" icon="chapter" />
+      </topic>
+      <topic label="Large Objects" href="html/programmers/client/Doc07_LargeObjects.html" icon="article" />
+      <topic label="Branching and Versioning" href="html/programmers/client/Doc08_BranchingAndVersioning.html" icon="article">
+        <topic label="Working with Branches" href="html/programmers/client/Doc08_BranchingAndVersioning.html#WorkingWithBranches" icon="chapter" />
+        <topic label="Accessing Historical Versions" href="html/programmers/client/Doc08_BranchingAndVersioning.html#AccessingHistoricalVersions" icon="chapter" />
+        <topic label="Comparing Versions" href="html/programmers/client/Doc08_BranchingAndVersioning.html#ComparingVersions" icon="chapter" />
+        <topic label="Merging Changes" href="html/programmers/client/Doc08_BranchingAndVersioning.html#MergingChanges" icon="chapter" />
+      </topic>
+      <topic label="Notifications and Event Handling" href="html/programmers/client/Doc09_NotificationsAndEventHandling.html" icon="article">
+        <topic label="Listening for Model Changes" href="html/programmers/client/Doc09_NotificationsAndEventHandling.html#ListeningForModelChanges" icon="chapter" />
+        <topic label="Handling Remote Updates" href="html/programmers/client/Doc09_NotificationsAndEventHandling.html#HandlingRemoteUpdates" icon="chapter" />
+        <topic label="Custom Event Processing" href="html/programmers/client/Doc09_NotificationsAndEventHandling.html#CustomEventProcessing" icon="chapter" />
+      </topic>
+      <topic label="Integrating with EMF and Other Frameworks" href="html/programmers/client/Doc10_IntegratingWithEMFAndOtherFrameworks.html" icon="article">
+        <topic label="Using CDO with EMF-Based Tools" href="html/programmers/client/Doc10_IntegratingWithEMFAndOtherFrameworks.html#UsingCDOWithEMFBasedTools" icon="chapter" />
+        <topic label="Extending and Customizing CDO Behavior" href="html/programmers/client/Doc10_IntegratingWithEMFAndOtherFrameworks.html#ExtendingAndCustomizingCDOBehavior" icon="chapter" />
+      </topic>
+      <topic label="Advanced Topics" href="html/programmers/client/Doc11_AdvancedTopics.html" icon="article">
+        <topic label="Custom View Providers" href="html/programmers/client/Doc11_AdvancedTopics.html#CustomViewProviders" icon="chapter" />
+        <topic label="Optimizing Performance" href="html/programmers/client/Doc11_AdvancedTopics.html#OptimizingPerformance" icon="chapter" />
+        <topic label="Handling Large Models Efficiently" href="html/programmers/client/Doc11_AdvancedTopics.html#HandlingLargeModelsEfficiently" icon="chapter" />
+        <topic label="Troubleshooting and Debugging" href="html/programmers/client/Doc11_AdvancedTopics.html#TroubleshootingAndDebugging" icon="chapter" />
+      </topic>
+      <topic label="Best Practices and Patterns" href="html/programmers/client/Doc12_BestPracticesAndPatterns.html" icon="article">
+        <topic label="Error Handling Strategies" href="html/programmers/client/Doc12_BestPracticesAndPatterns.html#ErrorHandlingStrategies" icon="chapter" />
+        <topic label="Recommended Usage Patterns" href="html/programmers/client/Doc12_BestPracticesAndPatterns.html#RecommendedUsagePatterns" icon="chapter" />
+        <topic label="Common Pitfalls" href="html/programmers/client/Doc12_BestPracticesAndPatterns.html#CommonPitfalls" icon="chapter" />
+      </topic>
     </topic>
-    <topic label="Dealing with Servers" href="html/programmers/server/index.html">
-      <topic label="Understanding the Architecture of a Repository" href="html/programmers/server/Architecture.html" />
+    <topic label="Developing Server Applications" href="html/programmers/server/index.html">
+      <topic label="Understanding the Architecture of a Repository" href="html/programmers/server/Architecture.html" icon="article">
+        <topic label="OSGi" href="html/programmers/server/Architecture.html#OSGi" icon="chapter" />
+        <topic label="CDO Server Core" href="html/programmers/server/Architecture.html#Core" icon="chapter" />
+        <topic label="CDO Store" href="html/programmers/server/Architecture.html#Store" icon="chapter" />
+        <topic label="Protocol" href="html/programmers/server/Architecture.html#Protocol" icon="chapter" />
+        <topic label="OCL" href="html/programmers/server/Architecture.html#OCL" icon="chapter" />
+        <topic label="Net4j Core" href="html/programmers/server/Architecture.html#Net4j" icon="chapter" />
+        <topic label="Transport" href="html/programmers/server/Architecture.html#Transport" icon="chapter" />
+      </topic>
     </topic>
+    <topic label="Installing the Sources" href="html/programmers/DocXX_InstallingSources.html" icon="article" />
   </topic>
   <topic label="Reference" href="html/reference/index.html">
     <topic label="API Reference" href="javadoc/overview-summary.html">
@@ -241,6 +613,7 @@
       <topic label="CDO Model Repository Client" href="productdoc/org.eclipse.emf.cdo.annotationValidators.html" icon="plugin">
         <topic label="CDO Annotation Validators" href="productdoc/org.eclipse.emf.cdo.annotationValidators.html" icon="productgroup" />
         <topic label="CDO Conflict Handlers" href="productdoc/org.eclipse.emf.cdo.conflictHandlers.html" icon="productgroup" />
+        <topic label="CDO Operation Authorizers" href="productdoc/org.eclipse.emf.cdo.operationAuthorizers.html" icon="productgroup" />
         <topic label="CDO Resource Set Class Name Providers" href="productdoc/org.eclipse.emf.cdo.resourceSetClassNameProviders.html" icon="productgroup" />
       </topic>
       <topic label="CDO Model Repository Client Edit Support" href="productdoc/org.eclipse.emf.cdo.edit.annotationItemProviderAdapterFactories.html" icon="plugin">
@@ -257,7 +630,8 @@
       <topic label="CDO Model Repository Client Workspace" href="productdoc/org.eclipse.emf.cdo.workspace.bases.html" icon="plugin">
         <topic label="CDO Workspace Bases" href="productdoc/org.eclipse.emf.cdo.workspace.bases.html" icon="productgroup" />
       </topic>
-      <topic label="CDO Model Repository Common" href="productdoc/org.eclipse.emf.cdo.common.ResourceSetConfigurers.html" icon="plugin">
+      <topic label="CDO Model Repository Common" href="productdoc/org.eclipse.emf.cdo.common.util.fingerPrinters.html" icon="plugin">
+        <topic label="Finger Printers" href="productdoc/org.eclipse.emf.cdo.common.util.fingerPrinters.html" icon="productgroup" />
         <topic label="Resource Set Configurers" href="productdoc/org.eclipse.emf.cdo.common.ResourceSetConfigurers.html" icon="productgroup" />
         <topic label="Type Handlers" href="productdoc/org.eclipse.emf.cdo.common.model.typeHandlers.html" icon="productgroup" />
         <topic label="URI Handlers" href="productdoc/org.eclipse.emf.cdo.common.util.uriHandlers.html" icon="productgroup" />
@@ -271,7 +645,8 @@
       <topic label="CDO Model Repository Lifecycle Management Reviews Server" href="productdoc/org.eclipse.emf.cdo.lm.reviews.server.reviewManagers.html" icon="plugin">
         <topic label="CDO Review Managers" href="productdoc/org.eclipse.emf.cdo.lm.reviews.server.reviewManagers.html" icon="productgroup" />
       </topic>
-      <topic label="CDO Model Repository Lifecycle Management Server" href="productdoc/org.eclipse.emf.cdo.lm.server.lifecycleManagers.html" icon="plugin">
+      <topic label="CDO Model Repository Lifecycle Management Server" href="productdoc/org.eclipse.emf.cdo.lm.server.baselineBranchPointProviders.html" icon="plugin">
+        <topic label="CDO Baseline Branch-Point Providers " href="productdoc/org.eclipse.emf.cdo.lm.server.baselineBranchPointProviders.html" icon="productgroup" />
         <topic label="CDO Lifecycle Managers" href="productdoc/org.eclipse.emf.cdo.lm.server.lifecycleManagers.html" icon="productgroup" />
       </topic>
       <topic label="CDO Model Repository Server" href="productdoc/org.eclipse.emf.cdo.server.browserPages.html" icon="plugin">
@@ -294,8 +669,10 @@
         <topic label="CDO Administration Servers" href="productdoc/org.eclipse.emf.cdo.server.admin.adminServers.html" icon="productgroup" />
         <topic label="CDO Repository Configuration Managers" href="productdoc/org.eclipse.emf.cdo.server.admin.repositoryConfigurationManagers.html" icon="productgroup" />
       </topic>
-      <topic label="CDO Model Repository Server DB" href="productdoc/org.eclipse.emf.cdo.server.db.typeMappingProviders.html" icon="plugin">
-        <topic label="CDO Type Mapping Providers" href="productdoc/org.eclipse.emf.cdo.server.db.typeMappingProviders.html" icon="productgroup" />
+      <topic label="CDO Model Repository Server DB" href="productdoc/org.eclipse.emf.cdo.server.db.modelEvolutionSupports.html" icon="plugin">
+        <topic label="%productGroup.modelEvolutionSupports" href="productdoc/org.eclipse.emf.cdo.server.db.modelEvolutionSupports.html" icon="productgroup" />
+        <topic label="CDO DB Model Loaders" href="productdoc/org.eclipse.emf.cdo.server.db.modelLoaders.html" icon="productgroup" />
+        <topic label="CDO DB Type Mapping Providers" href="productdoc/org.eclipse.emf.cdo.server.db.typeMappingProviders.html" icon="productgroup" />
       </topic>
       <topic label="CDO Model Repository Server Net4j Support" href="productdoc/org.eclipse.emf.cdo.server.net4j.failoverMonitors.html" icon="plugin">
         <topic label="Net4j Failover Monitors" href="productdoc/org.eclipse.emf.cdo.server.net4j.failoverMonitors.html" icon="productgroup" />
@@ -309,8 +686,8 @@
         <topic label="CDO Transfer UI Providers" href="productdoc/org.eclipse.emf.cdo.transfer.ui.providers.html" icon="productgroup" />
       </topic>
     </topic>
-    <topic label="Store Feature Matrix" href="html/reference/StoreFeatures.html" />
-    <topic label="DBStore Mapping Strategies" href="html/reference/MappingStrategies.html" />
+    <topic label="Store Feature Matrix" href="html/reference/StoreFeatures.html" icon="article" />
+    <topic label="DBStore Mapping Strategies" href="html/reference/MappingStrategies.html" icon="article" />
   </topic>
   <topic label="Online Docs" href="html/online/index.html">
     <topic label="CDO Homepage" href="https://eclipse.dev/cdo" icon="external" />

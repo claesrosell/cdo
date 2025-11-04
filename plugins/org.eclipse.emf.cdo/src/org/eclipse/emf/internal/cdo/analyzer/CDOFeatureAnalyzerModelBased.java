@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2012, 2014, 2015, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2012, 2014, 2015, 2019, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class CDOFeatureAnalyzerModelBased extends CDOAbstractFeatureRuleAnalyzer
 {
-  CDOAnalyzerFeatureInfo featureInfos = new CDOAnalyzerFeatureInfo();
+  private final CDOAnalyzerFeatureInfo featureInfos = new CDOAnalyzerFeatureInfo();
 
   public CDOFeatureAnalyzerModelBased()
   {
@@ -35,6 +35,7 @@ public class CDOFeatureAnalyzerModelBased extends CDOAbstractFeatureRuleAnalyzer
   @Override
   public void doPreTraverseFeature(CDOObject cdoObject, EStructuralFeature feature, int index)
   {
+    // Do nothing.
   }
 
   @Override
@@ -57,10 +58,12 @@ public class CDOFeatureAnalyzerModelBased extends CDOAbstractFeatureRuleAnalyzer
   {
     fetchData();
     List<CDOFetchRule> rules = new ArrayList<>();
+
     if (lastTraverseCDOObject != null)
     {
-      rules.addAll(featureInfos.getRules(lastTraverseCDOObject.eClass(), lastTraverseFeature));
+      rules.addAll(featureInfos.getFetchRules(lastTraverseCDOObject.eClass(), lastTraverseFeature));
     }
+
     return rules;
   }
 }

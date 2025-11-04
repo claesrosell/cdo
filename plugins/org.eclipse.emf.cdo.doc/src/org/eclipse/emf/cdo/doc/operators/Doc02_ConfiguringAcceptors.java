@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2015, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import org.eclipse.net4j.ws.IWSAcceptor;
 public class Doc02_ConfiguringAcceptors
 {
   /**
-   * @snippet xml cdo-server-acceptor.xml
+   * @snip xml cdo-server-acceptor.xml
    */
   public void cdoServerXML()
   {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2013, 2015, 2016 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2011-2013, 2015, 2016, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -139,9 +139,9 @@ public class Overview
     /**
      * Client Architecture
      * <p>
-     * {@link org.eclipse.emf.cdo.doc.programmers.client.Doc01_Architecture @inline}
+     * {@link org.eclipse.emf.cdo.doc.programmers.client.Doc01_ArchitectureClientApplication @inline}
      *
-     * @see org.eclipse.emf.cdo.doc.programmers.client.Doc01_Architecture
+     * @see org.eclipse.emf.cdo.doc.programmers.client.Doc01_ArchitectureClientApplication
      */
     public class Client
     {

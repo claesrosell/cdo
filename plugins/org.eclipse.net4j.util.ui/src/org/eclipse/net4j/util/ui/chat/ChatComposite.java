@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,6 @@ import org.eclipse.net4j.util.ui.chat.ChatRenderer.Renderable;
 import org.eclipse.net4j.util.ui.widgets.EntryControlAdvisor;
 import org.eclipse.net4j.util.ui.widgets.EntryControlAdvisor.ControlConfig;
 import org.eclipse.net4j.util.ui.widgets.EntryField;
-import org.eclipse.net4j.util.ui.widgets.EntryField.FieldConfig;
 import org.eclipse.net4j.util.ui.widgets.ImageButton;
 import org.eclipse.net4j.util.ui.widgets.ImageButton.SelectionMode;
 import org.eclipse.net4j.util.ui.widgets.SafeBrowser;
@@ -140,10 +139,47 @@ public final class ChatComposite extends Composite
     return sendButton;
   }
 
+  /**
+   * @since 3.21
+   */
+  public boolean isEntryFieldVisible()
+  {
+    return entryField != null && entryField.isVisible();
+  }
+
+  /**
+   * @since 3.21
+   */
+  public void setEntryFieldVisible(boolean visible)
+  {
+    boolean layout = false;
+
+    if (entryField != null)
+    {
+      entryField.setVisible(visible);
+      GridData gridData = (GridData)entryField.getLayoutData();
+      gridData.exclude = !visible;
+      layout = true;
+    }
+
+    if (sendButton != null)
+    {
+      sendButton.setVisible(visible);
+      GridData gridData = (GridData)sendButton.getLayoutData();
+      gridData.exclude = !visible;
+      layout = true;
+    }
+
+    if (layout)
+    {
+      layout(true);
+    }
+  }
+
   @Override
   public boolean setFocus()
   {
-    return entryField == null ? messageBrowser.setFocus() : entryField.setFocus();
+    return isEntryFieldVisible() ? entryField.setFocus() : messageBrowser.setFocus();
   }
 
   public void refreshMessageBrowser()
@@ -191,7 +227,7 @@ public final class ChatComposite extends Composite
       }
     });
 
-    FieldConfig fieldConfig = new EntryField.FieldConfig();
+    EntryField.FieldConfig fieldConfig = new EntryField.FieldConfig();
     fieldConfig.setEntryBackground(entryBackgroundColor);
     fieldConfig.setEntryControlAdvisor(entryControlAdvisor);
     fieldConfig.setEntryControlConfig(controlConfig);

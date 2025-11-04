@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.lm.reviews.TopicContainer;
 import org.eclipse.emf.cdo.lm.reviews.TopicStatus;
 import org.eclipse.emf.cdo.lm.reviews.provider.ReviewsEditPlugin;
 import org.eclipse.emf.cdo.lm.reviews.ui.bundle.OM;
+import org.eclipse.emf.cdo.lm.reviews.util.ReviewsOperations;
 import org.eclipse.emf.cdo.lm.ui.actions.LMAction;
 
 import org.eclipse.net4j.util.StringUtil;
@@ -58,6 +59,12 @@ public class NewTopicAction extends LMAction.NewElement<TopicContainer>
         "Add a new topic.", //
         "icons/wizban/NewTopic.png", //
         container);
+  }
+
+  @Override
+  public String getAuthorizableOperationID()
+  {
+    return ReviewsOperations.CREATE_TOPIC;
   }
 
   @Override

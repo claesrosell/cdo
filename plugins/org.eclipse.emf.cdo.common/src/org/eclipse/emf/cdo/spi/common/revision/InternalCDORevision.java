@@ -86,7 +86,10 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
 
   public void setContainerID(Object containerID);
 
-  public void setContainingFeatureID(int containingFeatureID);
+  /**
+   * @since 4.27
+   */
+  public void setContainerFeatureID(int containerFeatureID);
 
   /**
    * @see DelegatingEcoreEList#inverseAdd(Object, NotificationChain)
@@ -94,8 +97,8 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
    */
   public default void setContainingReference(EReference containingReference)
   {
-    int containingReferenceID = calculateContainingReferenceID(containingReference);
-    setContainingFeatureID(containingReferenceID);
+    int containerReferenceID = calculateContainerReferenceID(containingReference);
+    setContainerFeatureID(containerReferenceID);
   }
 
   /**
@@ -115,11 +118,6 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
 
   public void unset(EStructuralFeature feature);
 
-  /**
-   * Should never return {@link InternalCDORevision#NIL}
-   */
-  public Object getValue(EStructuralFeature feature);
-
   public Object setValue(EStructuralFeature feature, Object value);
 
   public void setList(EStructuralFeature feature, InternalCDOList list);
@@ -135,11 +133,6 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
    */
   @Deprecated
   public CDOList getList(EStructuralFeature feature, int initialCapacity);
-
-  /**
-   * @since 4.7
-   */
-  public CDOList getListOrNull(EStructuralFeature feature);
 
   /**
    * Same as {@link #getOrCreateList(EStructuralFeature, int) getOrCreateList(feature, 0)}.
@@ -279,4 +272,10 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
    * @since 4.1
    */
   public void setUnchunked();
+
+  /**
+   * @deprecated As of 4.27 use {@link #setContainerFeatureID(int)}.
+   */
+  @Deprecated
+  public void setContainingFeatureID(int containerFeatureID);
 }

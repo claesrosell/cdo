@@ -62,6 +62,7 @@ import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.server.LockingManager.LockDeltaCollector;
 import org.eclipse.emf.cdo.internal.server.LockingManager.LockStateCollector;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
+import org.eclipse.emf.cdo.server.ILobCleanup;
 import org.eclipse.emf.cdo.server.IQueryHandler;
 import org.eclipse.emf.cdo.server.IQueryHandlerProvider;
 import org.eclipse.emf.cdo.server.IRepositoryProtector;
@@ -109,6 +110,7 @@ import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 import org.eclipse.emf.cdo.spi.server.InternalStore;
+import org.eclipse.emf.cdo.spi.server.InternalStore.RestartException;
 import org.eclipse.emf.cdo.spi.server.InternalTransaction;
 import org.eclipse.emf.cdo.spi.server.InternalUnitManager;
 import org.eclipse.emf.cdo.spi.server.InternalView;
@@ -194,6 +196,8 @@ public class Repository extends Container<Object> implements InternalRepository
   private static final int NONE = CDORevision.DEPTH_NONE;
 
   private static final String PROP_UUID = "org.eclipse.emf.cdo.server.repositoryUUID"; //$NON-NLS-1$
+
+  private static final String PROP_MODE = "org.eclipse.emf.cdo.server.repositoryMode"; //$NON-NLS-1$
 
   private static final Map<String, Repository> REPOSITORIES = new HashMap<>();
 
@@ -1769,10 +1773,10 @@ public class Repository extends Container<Object> implements InternalRepository
     {
       try
       {
-        String result = authorizer.authorizeOperation(session, operation);
-        if (result != null)
+        String veto = authorizer.authorizeOperation(session, operation);
+        if (veto != null)
         {
-          return result;
+          return veto;
         }
       }
       catch (Error ex)
@@ -1796,10 +1800,10 @@ public class Repository extends Container<Object> implements InternalRepository
     {
       InternalSession session = StoreThreadLocal.getSession();
 
-      String denial = authorizeOperation(session, operation);
-      if (denial != null)
+      String veto = authorizeOperation(session, operation);
+      if (veto != null)
       {
-        throw new AuthorizationException(denial);
+        throw new AuthorizationException(veto);
       }
     }
   }
@@ -2333,6 +2337,17 @@ public class Repository extends Container<Object> implements InternalRepository
   }
 
   @Override
+  public int cleanupLobs(boolean dryRun)
+  {
+    if (store instanceof ILobCleanup)
+    {
+      return ((ILobCleanup)store).cleanupLobs(dryRun);
+    }
+
+    throw new LobCleanupNotSupportedException();
+  }
+
+  @Override
   public void handleRevisions(EClass eClass, CDOBranch branch, boolean exactBranch, long timeStamp, boolean exactTime, final CDORevisionHandler handler)
   {
     CDORevisionHandler wrapper = handler;
@@ -2410,13 +2425,13 @@ public class Repository extends Container<Object> implements InternalRepository
     return staleRevisionsArray;
   }
 
-  private void sendLockNotifications(IView view, List<CDOLockDelta> lockDeltas, List<CDOLockState> lockStates)
+  private void sendLockNotifications(IView view, List<CDOLockDelta> lockDeltas, List<CDOLockState> lockStates, boolean administrative)
   {
     CDOBranchPoint branchPoint = view.getBranch().getPoint(getTimeStamp());
     CDOLockOwner lockOwner = view.getLockOwner();
-    CDOLockChangeInfo lockChangeInfo = CDOLockUtil.createLockChangeInfo(branchPoint, lockOwner, lockDeltas, lockStates);
+    CDOLockChangeInfo lockChangeInfo = CDOLockUtil.createLockChangeInfo(branchPoint, lockOwner, lockDeltas, lockStates, administrative);
 
-    InternalSession sender = (InternalSession)view.getSession();
+    InternalSession sender = administrative ? null : (InternalSession)view.getSession();
     sessionManager.sendLockNotification(sender, lockChangeInfo);
   }
 
@@ -2470,7 +2485,7 @@ public class Repository extends Container<Object> implements InternalRepository
       return new LockObjectsResult(false, false, false, requiredTimestamp[0], staleRevisionsArray, NO_LOCK_DELTAS, NO_LOCK_STATES, getTimeStamp());
     }
 
-    sendLockNotifications(view, lockDeltas, lockStates);
+    sendLockNotifications(view, lockDeltas, lockStates, false);
 
     boolean waitForUpdate = staleRevisionsArray.length > 0;
     return new LockObjectsResult(true, false, waitForUpdate, requiredTimestamp[0], staleRevisionsArray, lockDeltas, lockStates, getTimeStamp());
@@ -2478,6 +2493,29 @@ public class Repository extends Container<Object> implements InternalRepository
 
   @Override
   public UnlockObjectsResult unlock(InternalView view, LockType lockType, List<CDOID> objectIDs, boolean recursive)
+  {
+    return doUnlock(view, lockType, objectIDs, recursive, false);
+  }
+
+  @Override
+  public UnlockObjectsResult unlock(InternalView view)
+  {
+    return doUnlock(view, null, null, false, IRWOLockManager.ALL_LOCKS, false);
+  }
+
+  @Override
+  public UnlockObjectsResult unlockAdministratively(InternalView view, LockType lockType, List<CDOID> objectIDs, boolean recursive)
+  {
+    return doUnlock(view, lockType, objectIDs, recursive, true);
+  }
+
+  @Override
+  public UnlockObjectsResult unlockAdministratively(InternalView view)
+  {
+    return doUnlock(view, null, null, false, IRWOLockManager.ALL_LOCKS, true);
+  }
+
+  protected UnlockObjectsResult doUnlock(InternalView view, LockType lockType, List<CDOID> objectIDs, boolean recursive, boolean notifyAllSessions)
   {
     List<Object> unlockables = null;
 
@@ -2493,23 +2531,18 @@ public class Repository extends Container<Object> implements InternalRepository
       }
     }
 
-    return doUnlock(view, lockType, unlockables, recursive, 1);
+    return doUnlock(view, lockType, unlockables, recursive, 1, notifyAllSessions);
   }
 
-  @Override
-  public UnlockObjectsResult unlock(InternalView view)
-  {
-    return doUnlock(view, null, null, false, IRWOLockManager.ALL_LOCKS);
-  }
-
-  protected UnlockObjectsResult doUnlock(InternalView view, LockType lockType, List<Object> unlockables, boolean recursive, int count)
+  protected UnlockObjectsResult doUnlock(InternalView view, LockType lockType, List<Object> unlockables, boolean recursive, int count,
+      boolean notifyAllSessions)
   {
     LockDeltaCollector lockDeltas = new LockDeltaCollector(Operation.UNLOCK);
     LockStateCollector lockStates = new LockStateCollector();
 
     lockingManager.unlock(view, unlockables, lockType, count, recursive, true, lockDeltas, lockStates);
 
-    sendLockNotifications(view, lockDeltas, lockStates);
+    sendLockNotifications(view, lockDeltas, lockStates, notifyAllSessions);
 
     long timestamp = getTimeStamp();
     return new UnlockObjectsResult(timestamp, lockDeltas, lockStates);
@@ -2611,7 +2644,8 @@ public class Repository extends Container<Object> implements InternalRepository
       idGenerationLocation = IDGenerationLocation.STORE;
     }
 
-    lobDigestAlgorithm = properties.get(Props.ID_GENERATION_LOCATION);
+    // LOB_DIGEST_ALGORITHM
+    lobDigestAlgorithm = properties.get(Props.LOB_DIGEST_ALGORITHM);
     if (StringUtil.isEmpty(lobDigestAlgorithm))
     {
       lobDigestAlgorithm = CDOLobStoreImpl.DEFAULT_DIGEST_ALGORITHM;
@@ -2643,7 +2677,7 @@ public class Repository extends Container<Object> implements InternalRepository
   }
 
   @Override
-  public void initSystemPackages(final boolean firstStart)
+  public void initSystemPackages(boolean firstStart)
   {
     List<InternalCDOPackageUnit> newPackageUnits = new ArrayList<>();
     long timeStamp;
@@ -2746,7 +2780,7 @@ public class Repository extends Container<Object> implements InternalRepository
 
     rootResource.setBranchPoint(head);
     rootResource.setContainerID(CDOID.NULL);
-    rootResource.setContainingFeatureID(0);
+    rootResource.setContainerFeatureID(0);
 
     CDOID id = createRootResourceID();
     rootResource.setID(id);
@@ -2958,9 +2992,21 @@ public class Repository extends Container<Object> implements InternalRepository
     revisionManager.setSupportingAudits(supportingAudits);
     revisionManager.setSupportingBranches(supportingBranches);
 
-    LifecycleUtil.activate(store);
+    for (;;)
+    {
+      try
+      {
+        LifecycleUtil.activate(store);
+      }
+      catch (RestartException ex)
+      {
+        continue;
+      }
 
-    Map<String, String> persistentProperties = store.getPersistentProperties(Collections.singleton(PROP_UUID));
+      break;
+    }
+
+    Map<String, String> persistentProperties = store.getPersistentProperties(PROP_UUID, PROP_MODE);
     String persistentUUID = persistentProperties.get(PROP_UUID);
 
     if (uuid == null)
@@ -3004,6 +3050,10 @@ public class Repository extends Container<Object> implements InternalRepository
       timeStampAuthority.setLastFinishedTimeStamp(lastCommitTime);
       commitInfoManager.setLastCommitOfBranch(null, lastCommitTime);
 
+      persistentProperties.remove(PROP_UUID); // No longer needed
+      String mode = getMode().name();
+      boolean modeChecked = false;
+
       if (store.isFirstStart())
       {
         initSystemPackages(true);
@@ -3011,8 +3061,25 @@ public class Repository extends Container<Object> implements InternalRepository
       }
       else
       {
+        String persistentMode = persistentProperties.get(PROP_MODE);
+        if (persistentMode != null)
+        {
+          if (!persistentMode.equalsIgnoreCase(mode))
+          {
+            throw new CDOException("Repository mode changed from " + persistentMode + " to " + mode);
+          }
+
+          modeChecked = true;
+        }
+
         initSystemPackages(false);
         readRootResource();
+      }
+
+      if (!modeChecked)
+      {
+        persistentProperties.put(PROP_MODE, mode);
+        store.setPersistentProperties(persistentProperties);
       }
 
       branchManager.setTagModCount(0);

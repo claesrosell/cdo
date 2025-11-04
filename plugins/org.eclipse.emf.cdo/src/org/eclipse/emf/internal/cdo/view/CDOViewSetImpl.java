@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013, 2015, 2018-2021, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2013, 2015, 2018-2021, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,8 @@ import org.eclipse.net4j.util.container.IContainerDelta;
 import org.eclipse.net4j.util.container.SetContainer;
 import org.eclipse.net4j.util.container.SingleDeltaContainerEvent;
 import org.eclipse.net4j.util.event.IListener;
+import org.eclipse.net4j.util.registry.HashMapRegistry;
+import org.eclipse.net4j.util.registry.IRegistry;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
@@ -87,6 +89,8 @@ public class CDOViewSetImpl extends NotifierImpl implements InternalCDOViewSet
   private final Map<URI, InternalCDOView> mapOfViews = new HashMap<>();
 
   private final ThreadLocal<Boolean> ignoreNotifications = new InheritableThreadLocal<>();
+
+  private final IRegistry<String, Object> properties = new HashMapRegistry.AutoCommit<>();
 
   private CDOResourceFactory resourceFactory;
 
@@ -180,6 +184,12 @@ public class CDOViewSetImpl extends NotifierImpl implements InternalCDOViewSet
   public IListener[] getListeners()
   {
     return notifier.getListeners();
+  }
+
+  @Override
+  public IRegistry<String, Object> properties()
+  {
+    return properties;
   }
 
   @Override

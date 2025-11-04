@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2021, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,8 @@ public class AbstractAuthorizingHandler<T> extends AbstractBaseHandler<T>
       CDOSession session = CDOUtil.getSession(element);
       if (session != null)
       {
-        return session.authorizeOperations(authorizableOperation)[0] == null;
+        String veto = session.authorizeOperations(authorizableOperation)[0];
+        return veto == null;
       }
     }
 

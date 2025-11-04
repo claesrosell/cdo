@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2012, 2019-2021, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2011, 2012, 2019-2021, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import static org.junit.Assume.assumeNotNull;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.CDOCommonSession;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.lock.CDOLockOwner;
 import org.eclipse.emf.cdo.common.lock.CDOLockState;
 import org.eclipse.emf.cdo.common.lock.CDOLockUtil;
@@ -24,11 +25,11 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.CDOServerUtil;
 import org.eclipse.emf.cdo.server.ILockingManager;
 import org.eclipse.emf.cdo.server.IRepository;
-import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.server.InternalLockManager;
+import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
@@ -444,10 +445,34 @@ public class LockingManagerRestartTransactionTest extends AbstractLockingTest
     assertEquals(true, gotCalled[0]);
   }
 
+  public void testGetLockAreaForLockedObject() throws Exception
+  {
+    Company company = getModel1Factory().createCompany();
+    resource.getContents().add(company);
+    transaction.commit();
+
+    String durableLockingID = transaction.enableDurableLocking();
+    lockWrite(company);
+
+    InternalSession serverSession = serverSession(session);
+    InternalLockManager lm = serverSession.getRepository().getLockingManager();
+
+    CDOServerUtil.execute(serverSession, () -> {
+      LockArea lockArea = lm.getLockArea(durableLockingID);
+      assertEquals(durableLockingID, lockArea.getDurableLockingID());
+
+      CDOID id = CDOUtil.getCDOObject(company).cdoID();
+      Object lockKey = lm.getLockKey(id);
+
+      Set<IView> lockOwners = lm.getLockOwners(lockKey);
+      assertEquals(durableLockingID, lockOwners.iterator().next().getDurableLockingID());
+    });
+  }
+
   public void _testClearLocksOnServer() throws Exception
   {
-    ISession serverSession = CDOServerUtil.getServerSession(session);
-    InternalLockManager lm = (InternalLockManager)serverSession.getRepository().getLockingManager();
+    InternalSession serverSession = serverSession(session);
+    InternalLockManager lm = serverSession.getRepository().getLockingManager();
 
     transaction.commit();
     transaction.options().setLockNotificationEnabled(true);
@@ -504,8 +529,8 @@ public class LockingManagerRestartTransactionTest extends AbstractLockingTest
   {
     transaction.commit();
 
-    ISession serverSession = CDOServerUtil.getServerSession(session);
-    InternalLockManager lm = (InternalLockManager)serverSession.getRepository().getLockingManager();
+    InternalSession serverSession = serverSession(session);
+    InternalLockManager lm = serverSession.getRepository().getLockingManager();
 
     CDOView localView = session.openView();
     localView.options().setLockNotificationEnabled(true);

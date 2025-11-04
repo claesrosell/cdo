@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2021, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,9 @@ import java.util.Objects;
 /**
  * @author Eike Stepper
  * @since 3.16
+ * @deprecated As of 4.16 use {@link AuthorizableOperation}. It was an accident that this class hasn't been deleted before the release.
  */
+@Deprecated
 public final class AuthorizableOperationImpl
 {
   private static final ClassLoader CLASS_LOADER = OM.BUNDLE.getClass().getClassLoader();

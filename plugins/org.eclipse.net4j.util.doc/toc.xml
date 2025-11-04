@@ -2,7 +2,7 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="Net4j Utilities Documentation" topic="html/Overview.html">
-  <topic label="Overview" href="html/Overview.html" />
+  <topic label="Overview" href="html/Overview.html" icon="article" />
   <topic label="API Reference" href="javadoc/overview-summary.html">
     <topic label="Net4j Utilities" href="javadoc/org/eclipse/net4j/util/package-summary.html" icon="plugin">
       <topic label="org.eclipse.net4j.util" href="javadoc/org/eclipse/net4j/util/package-summary.html" icon="package" />
@@ -62,6 +62,7 @@
       <topic label="Crypters" href="productdoc/org.eclipse.net4j.util.security.crypters.html" icon="productgroup" />
       <topic label="Exception Handlers" href="productdoc/org.eclipse.net4j.util.exceptionHandlers.html" icon="productgroup" />
       <topic label="Executor Services" href="productdoc/org.eclipse.net4j.executorServices.html" icon="productgroup" />
+      <topic label="Listeners" href="productdoc/org.eclipse.net4j.util.event.listeners.html" icon="productgroup" />
       <topic label="Meta Factories" href="productdoc/org.eclipse.net4j.util.metaFactories.html" icon="productgroup" />
       <topic label="Negotiators" href="productdoc/org.eclipse.net4j.Negotiators.html" icon="productgroup" />
       <topic label="Randomizers" href="productdoc/org.eclipse.net4j.randomizers.html" icon="productgroup" />
@@ -81,6 +82,7 @@
       <topic label="Introspection Providers" href="productdoc/org.eclipse.net4j.util.ui.introspectionProviders.html" icon="productgroup" />
       <topic label="Menu Fillers" href="productdoc/org.eclipse.net4j.util.ui.menuFillers.html" icon="productgroup" />
       <topic label="Open Handlers" href="productdoc/org.eclipse.net4j.util.ui.openHandlers.html" icon="productgroup" />
+      <topic label="Property Extenders" href="productdoc/org.eclipse.net4j.util.ui.propertyExtenders.html" icon="productgroup" />
       <topic label="Value Formatters" href="productdoc/org.eclipse.net4j.util.ui.valueFormatters.html" icon="productgroup" />
     </topic>
   </topic>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, 2016, 2017, 2019, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2012, 2013, 2016, 2017, 2019, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -111,14 +111,9 @@ public class CDOTransactionCommentator implements Closeable
     this.transaction = transaction;
     this.showMerges = showMerges;
 
-    transaction.syncExec(new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        transaction.addListener(transactionListener);
-        transaction.addTransactionHandler(transactionHandler);
-      }
+    transaction.sync().run(() -> {
+      transaction.addListener(transactionListener);
+      transaction.addTransactionHandler(transactionHandler);
     });
   }
 
@@ -140,14 +135,7 @@ public class CDOTransactionCommentator implements Closeable
    */
   public final void setShowMerges(final boolean showMerges)
   {
-    transaction.syncExec(new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        CDOTransactionCommentator.this.showMerges = showMerges;
-      }
-    });
+    transaction.sync().run(() -> CDOTransactionCommentator.this.showMerges = showMerges);
   }
 
   @Override
@@ -159,14 +147,9 @@ public class CDOTransactionCommentator implements Closeable
   @Override
   public void close()
   {
-    transaction.syncExec(new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        transaction.removeTransactionHandler(transactionHandler);
-        transaction.removeListener(transactionListener);
-      }
+    transaction.sync().run(() -> {
+      transaction.removeTransactionHandler(transactionHandler);
+      transaction.removeListener(transactionListener);
     });
 
     transaction = null;

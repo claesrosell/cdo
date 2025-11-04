@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.lm.ui.actions;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.lm.ui.bundle.OM;
+import org.eclipse.emf.cdo.util.ContextOperationAuthorization;
 
 import org.eclipse.net4j.util.ui.UIUtil;
 import org.eclipse.net4j.util.ui.actions.LongRunningAction;
@@ -58,11 +59,28 @@ public abstract class LMAction<CONTEXT extends CDOObject> extends LongRunningAct
     this.bannerImagePath = bannerImagePath;
     this.bannerMessage = bannerMessage;
     this.context = context;
+
+    String operationID = getAuthorizableOperationID();
+    if (operationID != null)
+    {
+      ContextOperationAuthorization authorization = new ContextOperationAuthorization(context, operationID);
+      String veto = authorization.getVeto(operationID);
+      if (veto != null)
+      {
+        setEnabled(false);
+        setToolTipText(veto + ": " + getToolTipText());
+      }
+    }
   }
 
   public CONTEXT getContext()
   {
     return context;
+  }
+
+  public String getAuthorizableOperationID()
+  {
+    return null;
   }
 
   @Override

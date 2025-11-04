@@ -342,6 +342,16 @@ public interface InternalRepository extends IRepository, //
   public UnlockObjectsResult unlock(InternalView view);
 
   /**
+   * @since 4.25
+   */
+  public UnlockObjectsResult unlockAdministratively(InternalView view, LockType type, List<CDOID> ids, boolean recursive);
+
+  /**
+   * @since 4.25
+   */
+  public UnlockObjectsResult unlockAdministratively(InternalView view);
+
+  /**
    * @since 4.2
    */
   public long getOptimisticLockingTimeout();

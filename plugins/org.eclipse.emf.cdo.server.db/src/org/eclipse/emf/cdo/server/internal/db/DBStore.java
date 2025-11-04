@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013, 2015, 2016, 2019-2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2013, 2015, 2016, 2019-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,9 @@ import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.db.IMetaDataManager;
+import org.eclipse.emf.cdo.server.db.IModelEvolutionSupport;
+import org.eclipse.emf.cdo.server.db.mapping.ILobRefsUpdater;
+import org.eclipse.emf.cdo.server.db.mapping.ILobRefsUpdater.LobRefsUpdateNotSupportedException;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.DBStoreTables.LobsTable;
 import org.eclipse.emf.cdo.server.internal.db.DBStoreTables.PropertiesTable;
@@ -59,6 +62,7 @@ import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.collection.Entity;
 import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
+import org.eclipse.net4j.util.lifecycle.LifecycleState;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
@@ -80,14 +84,20 @@ import java.util.Timer;
 import java.util.function.Consumer;
 
 /**
+ * The DBStore class is a core implementation of a database-backed store for the Eclipse CDO (Connected Data Objects) framework.
+ * It manages connections, schema versioning, object IDs, metadata, and persistent properties for a CDO repository.
+ * The class handles database activation, deactivation, schema migration, crash recovery, and provides accessors for reading and writing data.
+ * It also supports configuration via properties and adapts to different ID generation strategies and schema requirements.
+ *
  * @author Eike Stepper
  */
 public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider, PostActivateable
 {
   public static final String TYPE = "db"; //$NON-NLS-1$
 
-  public static final int SCHEMA_VERSION = 4;
+  public static final int SCHEMA_VERSION = 5; // Issue xxx: Provide a large object cleanup mechanism
 
+  // public static final int SCHEMA_VERSION = 4; // Bug 344232: CDODBSchema uses "size" as an column name.
   // public static final int SCHEMA_VERSION = 3; // Bug 404047: Indexed columns must be NOT NULL.
   // public static final int SCHEMA_VERSION = 2; // Bug 344232: Rename cdo_lobs.size to cdo_lobs.lsize.
   // public static final int SCHEMA_VERSION = 1; // Bug 351068: Delete detached objects from non-auditing stores.
@@ -100,7 +110,11 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
 
   private static final String PROP_REPOSITORY_CREATED = "org.eclipse.emf.cdo.server.db.repositoryCreated"; //$NON-NLS-1$
 
+  private static final String PROP_REPOSITORY_STARTED = "org.eclipse.emf.cdo.server.db.repositoryStarted"; //$NON-NLS-1$
+
   private static final String PROP_REPOSITORY_STOPPED = "org.eclipse.emf.cdo.server.db.repositoryStopped"; //$NON-NLS-1$
+
+  private static final String PROP_GRACEFULLY_SHUT_DOWN = "org.eclipse.emf.cdo.server.db.gracefullyShutDown"; //$NON-NLS-1$
 
   private static final String PROP_NEXT_LOCAL_CDOID = "org.eclipse.emf.cdo.server.db.nextLocalCDOID"; //$NON-NLS-1$
 
@@ -113,8 +127,6 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
   private static final String PROP_LAST_COMMITTIME = "org.eclipse.emf.cdo.server.db.lastCommitTime"; //$NON-NLS-1$
 
   private static final String PROP_LAST_NONLOCAL_COMMITTIME = "org.eclipse.emf.cdo.server.db.lastNonLocalCommitTime"; //$NON-NLS-1$
-
-  private static final String PROP_GRACEFULLY_SHUT_DOWN = "org.eclipse.emf.cdo.server.db.gracefullyShutDown"; //$NON-NLS-1$
 
   private static final int DEFAULT_CONNECTION_RETRY_COUNT = OMPlatform.INSTANCE.getProperty("org.eclipse.emf.cdo.server.db.DEFAULT_CONNECTION_RETRY_COUNT", 0);
 
@@ -159,6 +171,8 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
   private IDBAdapter dbAdapter;
 
   private IDBConnectionProvider dbConnectionProvider;
+
+  private IModelEvolutionSupport modelEvolutionSupport;
 
   @ExcludeFromDump
   private transient ProgressDistributor accessorWriteDistributor = createProgressDistributor();
@@ -222,6 +236,35 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
       if (value != null)
       {
         return Integer.parseInt(value);
+      }
+    }
+
+    return defaultValue;
+  }
+
+  @SuppressWarnings("unused")
+  private String getProperty(String key, String defaultValue)
+  {
+    if (properties != null)
+    {
+      String value = properties.get(key);
+      if (value != null)
+      {
+        return value;
+      }
+    }
+
+    return defaultValue;
+  }
+
+  private boolean getProperty(String key, boolean defaultValue)
+  {
+    if (properties != null)
+    {
+      String value = properties.get(key);
+      if (value != null)
+      {
+        return Boolean.parseBoolean(value);
       }
     }
 
@@ -339,6 +382,17 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
   public void setDBConnectionProvider(IDBConnectionProvider dbConnectionProvider)
   {
     this.dbConnectionProvider = dbConnectionProvider;
+  }
+
+  public IModelEvolutionSupport getModelEvolutionSupport()
+  {
+    return modelEvolutionSupport;
+  }
+
+  public void setModelEvolutionSupport(IModelEvolutionSupport modelEvolutionSupport)
+  {
+    checkInactive();
+    this.modelEvolutionSupport = modelEvolutionSupport;
   }
 
   @Override
@@ -498,6 +552,51 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
   }
 
   @Override
+  public synchronized int cleanupLobs(boolean dryRun)
+  {
+    if (mappingStrategy instanceof ILobRefsUpdater)
+    {
+      ILobRefsUpdater lobRefsUpdater = (ILobRefsUpdater)mappingStrategy;
+      LobsTable lobs = tables.lobs();
+      Connection connection = getConnection();
+
+      try
+      {
+        // Step 1: Reset all LOB references.
+        lobs.resetRefs(connection);
+
+        // Step 2: Let the mapping strategy update all LOB references.
+        lobRefsUpdater.updateLobRefs(connection);
+
+        // Step 3: Delete all LOBs without references.
+        int deleted = lobs.deleteOrphans(connection, dryRun);
+
+        // Step 4: Commit.
+        if (deleted > 0 && !dryRun)
+        {
+          connection.commit();
+        }
+
+        return deleted;
+      }
+      catch (SQLException ex)
+      {
+        throw new DBException(ex);
+      }
+      catch (LobRefsUpdateNotSupportedException ex)
+      {
+        throw new LobCleanupNotSupportedException(ex);
+      }
+      finally
+      {
+        DBUtil.close(connection);
+      }
+    }
+
+    throw new LobCleanupNotSupportedException();
+  }
+
+  @Override
   public Map<CDOBranch, List<CDORevision>> getAllRevisions()
   {
     final Map<CDOBranch, List<CDORevision>> result = new HashMap<>();
@@ -577,6 +676,31 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
   }
 
   @Override
+  public void triggerRestart(boolean withCrashRecovery)
+  {
+    if (getLifecycleState() == LifecycleState.ACTIVATING)
+    {
+      if (withCrashRecovery)
+      {
+        // Remove the shutdown flag to indicate that the repository is now active again.
+        // On next start, crash recovery will be performed because the flag is missing.
+        removePersistentProperties(Collections.singleton(PROP_GRACEFULLY_SHUT_DOWN));
+      }
+      else
+      {
+        // Set the shutdown flag to indicate that the repository was shut down gracefully.
+        // On next start, crash recovery will be skipped because the flag is present.
+        putPersistentProperty(PROP_GRACEFULLY_SHUT_DOWN, StringUtil.TRUE);
+      }
+
+      // Restart.
+      throw new RestartException();
+    }
+
+    throw new IllegalStateException("Store is not activating: " + getLifecycleState());
+  }
+
+  @Override
   public boolean isFirstStart()
   {
     return firstTime;
@@ -649,27 +773,14 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
     {
       if (idGenerationLocation == IDGenerationLocation.CLIENT)
       {
-        String prop = properties.get(Props.ID_COLUMN_LENGTH);
-        if (prop != null)
-        {
-          idColumnLength = Integer.parseInt(prop);
-        }
+        idColumnLength = getProperty(Props.ID_COLUMN_LENGTH, idColumnLength);
       }
 
       configureAccessorPool(readerPool, Props.READER_POOL_CAPACITY);
       configureAccessorPool(writerPool, Props.WRITER_POOL_CAPACITY);
 
-      String prop = properties.get(Props.DROP_ALL_DATA_ON_ACTIVATE);
-      if (prop != null)
-      {
-        setDropAllDataOnActivate(Boolean.parseBoolean(prop));
-      }
-
-      prop = properties.get(Props.JDBC_FETCH_SIZE);
-      if (prop != null)
-      {
-        jdbcFetchSize = Integer.parseInt(prop);
-      }
+      setDropAllDataOnActivate(getProperty(Props.DROP_ALL_DATA_ON_ACTIVATE, false));
+      jdbcFetchSize = getProperty(Props.JDBC_FETCH_SIZE, jdbcFetchSize);
     }
 
     Connection connection = getConnectionOrRetry();
@@ -749,7 +860,10 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
       reStart();
     }
 
-    putPersistentProperty(PROP_SCHEMA_VERSION, Integer.toString(SCHEMA_VERSION));
+    Map<String, String> map = new HashMap<>();
+    map.put(PROP_SCHEMA_VERSION, Integer.toString(SCHEMA_VERSION));
+    map.put(PROP_REPOSITORY_STARTED, Long.toString(getRepository().getTimeStamp()));
+    setPersistentProperties(map);
   }
 
   @Override
@@ -763,8 +877,8 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
     LifecycleUtil.deactivate(idHandler);
 
     Map<String, String> map = new HashMap<>();
-    map.put(PROP_GRACEFULLY_SHUT_DOWN, StringUtil.TRUE);
     map.put(PROP_REPOSITORY_STOPPED, Long.toString(getRepository().getTimeStamp()));
+    map.put(PROP_GRACEFULLY_SHUT_DOWN, StringUtil.TRUE);
 
     if (getRepository().getIDGenerationLocation() == IDGenerationLocation.STORE)
     {
@@ -801,10 +915,7 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
       return true;
     }
 
-    Set<String> names = new HashSet<>();
-    names.add(PROP_REPOSITORY_CREATED);
-
-    Map<String, String> map = getPersistentProperties(names);
+    Map<String, String> map = getPersistentProperties(PROP_REPOSITORY_CREATED);
     return map.get(PROP_REPOSITORY_CREATED) == null;
   }
 
@@ -858,7 +969,25 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
       repairAfterCrash();
     }
 
+    // Remove the shutdown flag to indicate that the repository is now active again.
+    // If we crash later, crash recovery will be performed because the flag is missing.
     removePersistentProperties(Collections.singleton(PROP_GRACEFULLY_SHUT_DOWN));
+
+    // Evolve models if needed.
+    if (modelEvolutionSupport != null)
+    {
+      modelEvolutionSupport.setStore(this);
+      LifecycleUtil.activate(modelEvolutionSupport);
+
+      try
+      {
+        modelEvolutionSupport.evolveModels();
+      }
+      finally
+      {
+        LifecycleUtil.deactivate(modelEvolutionSupport);
+      }
+    }
   }
 
   protected void repairAfterCrash()
@@ -1202,6 +1331,19 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
   private abstract class SchemaMigrator
   {
     public abstract void migrateSchema(Connection connection) throws Exception;
+
+    protected final IDBSchema createFakeSchema(Connection connection)
+    {
+      String schemaName = getSchemaName(connection);
+      if (schemaName != null)
+      {
+        boolean caseSensitive = dbAdapter.isCaseSensitive();
+        boolean prependSchemaName = isPrependSchemaName();
+        return DBUtil.createSchema(schemaName, caseSensitive, prependSchemaName);
+      }
+
+      return null;
+    }
   }
 
   private static final int FIRST_VERSION_WITH_NULLABLE_CHECKS = 4;
@@ -1221,21 +1363,10 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
           @Override
           public void visitTable(Connection connection, String name) throws SQLException
           {
-            Statement statement = null;
-
-            try
-            {
-              statement = connection.createStatement();
-
-              String from = " FROM " + name + " WHERE " + DBUtil.quoted(MappingNames.ATTRIBUTES_VERSION) + "<" + CDOBranchVersion.FIRST_VERSION;
-              statement.executeUpdate("DELETE FROM " + DBUtil.quoted(MappingNames.CDO_OBJECTS) + " WHERE " + DBUtil.quoted(MappingNames.ATTRIBUTES_ID)
-                  + " IN (SELECT " + DBUtil.quoted(MappingNames.ATTRIBUTES_ID) + from + ")");
-              statement.executeUpdate("DELETE" + from);
-            }
-            finally
-            {
-              DBUtil.close(statement);
-            }
+            String from = " FROM " + name + " WHERE " + DBUtil.quoted(MappingNames.ATTRIBUTES_VERSION) + "<" + CDOBranchVersion.FIRST_VERSION;
+            DBUtil.execute(connection, "DELETE FROM " + DBUtil.quoted(MappingNames.CDO_OBJECTS) + " WHERE " + DBUtil.quoted(MappingNames.ATTRIBUTES_ID)
+                + " IN (SELECT " + DBUtil.quoted(MappingNames.ATTRIBUTES_ID) + from + ")");
+            DBUtil.execute(connection, "DELETE" + from);
           }
         });
       }
@@ -1247,41 +1378,35 @@ public class DBStore extends Store implements IDBStore, CDOAllRevisionsProvider,
     @Override
     public void migrateSchema(Connection connection) throws Exception
     {
-      Statement statement = null;
+      // Create a fake DBField.
+      DBTable table = new DBTable(createFakeSchema(connection), LobsTable.tableName());
+      IDBField field = new DBField(table, LobsTable.sizeName(), DBType.INTEGER, 0, 0, false, 0);
 
-      try
-      {
-        statement = connection.createStatement();
-
-        // Create a fake DBField because the DBSchema is not yet initialized at this point.
-        IDBSchema schema = null;
-
-        String schemaName = getSchemaName(connection);
-        if (schemaName != null)
-        {
-          schema = DBUtil.createSchema(schemaName, dbAdapter.isCaseSensitive(), isPrependSchemaName());
-        }
-
-        DBTable table = new DBTable(schema, LobsTable.tableName());
-        IDBField field = new DBField(table, LobsTable.sizeName(), DBType.INTEGER, 0, 0, false, 0);
-
-        String sql = dbAdapter.sqlRenameField(field, DBUtil.quoted("size"));
-        statement.execute(sql);
-      }
-      finally
-      {
-        DBUtil.close(statement);
-      }
+      String sql = dbAdapter.sqlRenameField(field, DBUtil.quoted("size"));
+      DBUtil.execute(connection, sql);
     }
   };
 
   private final SchemaMigrator NULLABLE_COLUMNS_MIGRATION = null;
 
+  private final SchemaMigrator LOB_CLEANUP_MIGRATION = new SchemaMigrator()
+  {
+    @Override
+    public void migrateSchema(Connection connection) throws Exception
+    {
+      // Create a fake DBTable.
+      DBTable table = new DBTable(createFakeSchema(connection), LobsTable.tableName());
+      String sql = "ALTER TABLE " + table + " ADD " + DBUtil.quoted(LobsTable.refsName()) + " INTEGER";
+      DBUtil.execute(connection, sql);
+    }
+  };
+
   private final SchemaMigrator[] SCHEMA_MIGRATORS = { //
       NO_MIGRATION_NEEDED, //
       NON_AUDIT_MIGRATION, //
       LOB_SIZE_MIGRATION, //
-      NULLABLE_COLUMNS_MIGRATION };
+      NULLABLE_COLUMNS_MIGRATION, //
+      LOB_CLEANUP_MIGRATION };
 
   {
     if (SCHEMA_MIGRATORS.length != SCHEMA_VERSION)

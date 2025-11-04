@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2012, 2015, 2019 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2012, 2015, 2019, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,8 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -125,6 +127,22 @@ public interface IStore
    * @since 4.0
    */
   public Map<String, String> getPersistentProperties(Set<String> names);
+
+  /**
+   * @since 4.25
+   */
+  public default Map<String, String> getPersistentProperties(String name0, String... names)
+  {
+    Set<String> set = new HashSet<>();
+    set.add(name0);
+
+    if (names != null)
+    {
+      Collections.addAll(set, names);
+    }
+
+    return getPersistentProperties(set);
+  }
 
   /**
    * @since 4.0

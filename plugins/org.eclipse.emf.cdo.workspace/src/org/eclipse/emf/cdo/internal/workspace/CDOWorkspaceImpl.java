@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2016, 2018, 2019, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2016, 2018, 2019, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -110,7 +110,6 @@ import org.eclipse.emf.spi.cdo.InternalCDOTransaction.ChangeSetOutdatedException
 import org.eclipse.emf.spi.cdo.InternalCDOView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1430,8 +1429,7 @@ public class CDOWorkspaceImpl extends Notifier implements InternalCDOWorkspace
 
   protected void loadProperties()
   {
-    Set<String> names = new HashSet<>(Arrays.asList(PROP_BRANCH_ID, PROP_BRANCH_PATH, PROP_TIME_STAMP, PROP_FIXED));
-    Map<String, String> props = localRepository.getStore().getPersistentProperties(names);
+    Map<String, String> props = localRepository.getStore().getPersistentProperties(PROP_BRANCH_ID, PROP_BRANCH_PATH, PROP_TIME_STAMP, PROP_FIXED);
     String prop = props.get(PROP_BRANCH_ID);
     branchID = prop == null ? InternalCDOWorkspace.NO_BRANCH_ID : Integer.parseInt(prop);
     branchPath = props.get(PROP_BRANCH_PATH);

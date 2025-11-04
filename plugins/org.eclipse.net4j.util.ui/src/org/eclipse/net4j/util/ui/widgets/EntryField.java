@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.ScrollBar;
@@ -66,9 +65,11 @@ public final class EntryField extends Composite
 
   private final ImageButton modeButton;
 
+  private boolean modeButtonVisible = true;
+
   private Control control;
 
-  private Mode mode = new EditMode();
+  private Mode mode;
 
   private String initialEntry;
 
@@ -88,7 +89,7 @@ public final class EntryField extends Composite
     config.setEntryControlConfig(interceptModifyHandler(config.getEntryControlConfig()));
     this.config = config;
 
-    mode = config.isInitialPreviewMode() ? new PreviewMode() : new EditMode();
+    mode = config.isInitialPreviewMode() || config.isEditModeForbidden() ? new PreviewMode() : new EditMode();
     whiteColor = getDisplay().getSystemColor(SWT.COLOR_WHITE);
 
     addPaintListener(e -> {
@@ -180,6 +181,11 @@ public final class EntryField extends Composite
       return;
     }
 
+    if (!previewMode && config.isEditModeForbidden())
+    {
+      return;
+    }
+
     mode = mode.toggleMode();
     mode.updateButtons();
 
@@ -205,11 +211,27 @@ public final class EntryField extends Composite
   {
     if (visible != isExtraButtonVisible(index))
     {
-      GridData gridData = (GridData)extraButtons[index].getLayoutData();
-      gridData.exclude = !visible;
-
       extraButtons[index].setVisible(visible);
-      layout(true);
+    }
+  }
+
+  /**
+   * @since 3.21
+   */
+  public boolean isModeButtonVisible()
+  {
+    return modeButtonVisible;
+  }
+
+  /**
+   * @since 3.21
+   */
+  public void setModeButtonVisible(boolean visible)
+  {
+    if (visible != modeButtonVisible)
+    {
+      modeButtonVisible = visible;
+      mode.updateModeButtonVisibility();
     }
   }
 
@@ -374,6 +396,8 @@ public final class EntryField extends Composite
 
     private boolean initialPreviewMode;
 
+    private boolean editModeForbidden;
+
     private ButtonAdvisor[] extraButtonAdvisors;
 
     private Consumer<EntryField> emptyHandler;
@@ -394,6 +418,7 @@ public final class EntryField extends Composite
       emptyHint = source.emptyHint;
       previewProvider = source.previewProvider;
       initialPreviewMode = source.initialPreviewMode;
+      editModeForbidden = source.editModeForbidden;
       extraButtonAdvisors = source.extraButtonAdvisors == null ? null : Arrays.copyOf(source.extraButtonAdvisors, source.extraButtonAdvisors.length);
       emptyHandler = source.emptyHandler;
       dirtyHandler = source.dirtyHandler;
@@ -458,6 +483,22 @@ public final class EntryField extends Composite
     public void setInitialPreviewMode(boolean initialPreviewMode)
     {
       this.initialPreviewMode = initialPreviewMode;
+    }
+
+    /**
+     * @since 3.21
+     */
+    public boolean isEditModeForbidden()
+    {
+      return editModeForbidden;
+    }
+
+    /**
+     * @since 3.21
+     */
+    public void setEditModeForbidden(boolean editModeForbidden)
+    {
+      this.editModeForbidden = editModeForbidden;
     }
 
     public ButtonAdvisor[] getExtraButtonAdvisors()
@@ -592,7 +633,11 @@ public final class EntryField extends Composite
     @Override
     public void updateModeButtonVisibility()
     {
-      modeButton.setVisible(!empty);
+      boolean visible = modeButtonVisible && !empty;
+      if (visible != modeButton.isVisible())
+      {
+        modeButton.setVisible(visible);
+      }
     }
 
     @Override
@@ -695,7 +740,11 @@ public final class EntryField extends Composite
     @Override
     public void updateModeButtonVisibility()
     {
-      modeButton.setVisible(true);
+      boolean visible = modeButtonVisible;
+      if (visible != modeButton.isVisible())
+      {
+        modeButton.setVisible(visible);
+      }
     }
 
     @Override

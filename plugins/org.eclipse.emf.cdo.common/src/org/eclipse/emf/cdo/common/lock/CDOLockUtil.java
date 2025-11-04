@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2012, 2015, 2016, 2020, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2011, 2012, 2015, 2016, 2020, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -191,7 +191,16 @@ public final class CDOLockUtil
   public static CDOLockChangeInfo createLockChangeInfo(CDOBranchPoint branchPoint, CDOLockOwner lockOwner, Collection<CDOLockDelta> lockDeltas,
       Collection<CDOLockState> lockStates)
   {
-    return new CDOLockChangeInfoImpl(branchPoint, lockOwner, lockDeltas, lockStates);
+    return createLockChangeInfo(branchPoint, lockOwner, lockDeltas, lockStates, false);
+  }
+
+  /**
+   * @since 4.27
+   */
+  public static CDOLockChangeInfo createLockChangeInfo(CDOBranchPoint branchPoint, CDOLockOwner lockOwner, Collection<CDOLockDelta> lockDeltas,
+      Collection<CDOLockState> lockStates, boolean isAdministrative)
+  {
+    return new CDOLockChangeInfoImpl(branchPoint, lockOwner, lockDeltas, lockStates, isAdministrative);
   }
 
   public static CDOLockChangeInfo createLockChangeInfo()

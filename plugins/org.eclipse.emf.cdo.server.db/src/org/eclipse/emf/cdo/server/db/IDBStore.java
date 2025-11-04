@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2014, 2016, 2019, 2021-2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2014, 2016, 2019, 2021-2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.cdo.server.db;
 
+import org.eclipse.emf.cdo.server.ILobCleanup;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStore;
@@ -35,7 +36,7 @@ import java.util.Map;
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IDBStore extends IStore, IDBConnectionProvider, CanHandleClientAssignedIDs
+public interface IDBStore extends IStore, IDBConnectionProvider, ILobCleanup, CanHandleClientAssignedIDs
 {
   /**
    * @since 2.0
@@ -96,11 +97,31 @@ public interface IDBStore extends IStore, IDBConnectionProvider, CanHandleClient
   public IDBStoreAccessor getWriter(ITransaction transaction);
 
   /**
+   * Triggers a restart of the store.
+   * <p>
+   * If the store is in the ACTIVATING state, it will throw a RestartException to signal that a restart is required.
+   * The behavior of the restart depends on the value of the withCrashRecovery parameter:
+   * <ul>
+   * <li>If withCrashRecovery is true, the store will remove the shutdown flag (PROP_GRACEFULLY_SHUT_DOWN) from its persistent properties.
+   *      This indicates that the repository is now active again, and on the next start, crash recovery will be performed because the flag is missing.
+   * <li>If withCrashRecovery is false, the store will set the shutdown flag (PROP_GRACEFULLY_SHUT_DOWN) in its persistent properties.
+   *      This indicates that the repository was shut down gracefully, and on the next start, crash recovery will be skipped because the flag is present.
+   * </ul>
+   * <p>
+   * If the store is not in the ACTIVATING state, an IllegalStateException will be thrown, indicating that the store cannot be restarted in its current state.
+   *
+   * @param withCrashRecovery if true, the store will perform crash recovery on the next start; if false, it will skip crash recovery.
+   * @since 4.14
+   */
+  public void triggerRestart(boolean withCrashRecovery);
+
+  /**
    * Called back from {@link IDBStore#visitAllTables(Connection, TableVisitor)} for all tables in the database.
    *
    * @author Eike Stepper
    * @since 4.2
    */
+  @FunctionalInterface
   public interface TableVisitor
   {
     public void visitTable(Connection connection, String name) throws SQLException;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.lm.modules;
 
 import org.eclipse.emf.ecore.EFactory;
 
+import org.eclipse.equinox.p2.metadata.Version;
 import org.eclipse.equinox.p2.metadata.VersionRange;
 
 /**
@@ -41,6 +42,11 @@ public interface ModulesFactory extends EFactory
    * @generated
    */
   ModuleDefinition createModuleDefinition();
+
+  /**
+   * @since 1.1
+   */
+  ModuleDefinition createModuleDefinition(String name, Version version);
 
   /**
    * Returns a new object of class '<em>Dependency Definition</em>'. <!--

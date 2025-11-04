@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2019, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2016, 2019, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,16 +57,9 @@ public interface CDORegistrationHandler
 
     private CDOView view;
 
-    public Default(final CDOView view)
+    public Default(CDOView view)
     {
-      view.syncExec(new Runnable()
-      {
-        @Override
-        public void run()
-        {
-          doInitialize(view);
-        }
-      });
+      view.sync().run(() -> doInitialize(view));
 
       this.view = view;
     }
@@ -88,14 +81,7 @@ public interface CDORegistrationHandler
         final CDOView finalView = view;
         view = null;
 
-        finalView.syncExec(new Runnable()
-        {
-          @Override
-          public void run()
-          {
-            doDispose(finalView);
-          }
-        });
+        finalView.sync().run(() -> doDispose(finalView));
       }
     }
 

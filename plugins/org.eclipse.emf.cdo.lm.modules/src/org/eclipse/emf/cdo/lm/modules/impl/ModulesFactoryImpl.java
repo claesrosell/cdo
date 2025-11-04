@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -129,6 +129,15 @@ public class ModulesFactoryImpl extends EFactoryImpl implements ModulesFactory
   public ModuleDefinition createModuleDefinition()
   {
     ModuleDefinitionImpl moduleDefinition = new ModuleDefinitionImpl();
+    return moduleDefinition;
+  }
+
+  @Override
+  public ModuleDefinition createModuleDefinition(String name, Version version)
+  {
+    ModuleDefinition moduleDefinition = createModuleDefinition();
+    moduleDefinition.setName(name);
+    moduleDefinition.setVersion(version);
     return moduleDefinition;
   }
 

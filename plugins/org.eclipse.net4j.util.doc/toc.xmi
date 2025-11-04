@@ -36,6 +36,7 @@
     <productGroups id="org.eclipse.net4j.util.security.crypters" name="Crypters" description=""/>
     <productGroups id="org.eclipse.net4j.util.exceptionHandlers" name="Exception Handlers" description=""/>
     <productGroups id="org.eclipse.net4j.executorServices" name="Executor Services" description=""/>
+    <productGroups id="org.eclipse.net4j.util.event.listeners" name="Listeners" description=""/>
     <productGroups id="org.eclipse.net4j.util.metaFactories" name="Meta Factories" description=""/>
     <productGroups id="org.eclipse.net4j.Negotiators" name="Negotiators" description=""/>
     <productGroups id="org.eclipse.net4j.randomizers" name="Randomizers" description=""/>
@@ -67,6 +68,7 @@
     <productGroups id="org.eclipse.net4j.util.ui.introspectionProviders" name="Introspection Providers" description=""/>
     <productGroups id="org.eclipse.net4j.util.ui.menuFillers" name="Menu Fillers" description=""/>
     <productGroups id="org.eclipse.net4j.util.ui.openHandlers" name="Open Handlers" description=""/>
+    <productGroups id="org.eclipse.net4j.util.ui.propertyExtenders" name="Property Extenders" description=""/>
     <productGroups id="org.eclipse.net4j.util.ui.valueFormatters" name="Value Formatters" description=""/>
   </article:Plugin>
   <article:Plugin name="org.eclipse.net4j.util.ui.mylyn" label="Net4j Utilities UI Mylyn Support"/>

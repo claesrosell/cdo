@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2015, 2019, 2021, 2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2012, 2015, 2019, 2021, 2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ import org.eclipse.core.runtime.IAdaptable;
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface CDOCommonSession extends IAdaptable, IUserAware, IOptionsContainer, IPropertiesContainer, Closeable
+public interface CDOCommonSession extends IAdaptable, IUserAware, IOptionsContainer, IPropertiesContainer, Closeable, AutoCloseable
 {
   public int getSessionID();
 

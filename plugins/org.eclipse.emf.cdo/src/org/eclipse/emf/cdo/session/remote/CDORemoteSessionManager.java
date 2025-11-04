@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012, 2014, 2019, 2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2009-2012, 2014, 2019, 2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,6 +61,27 @@ public interface CDORemoteSessionManager extends IContainer<CDORemoteSession>
    * server each time this method is called.
    */
   public CDORemoteSession[] getRemoteSessions();
+
+  /**
+   * Returns the set of {@link CDORemoteSession remote sessions} that are connected to the same repository as the
+   * {@link #getLocalSession() local session} and have the given <code>userID</code>. If this
+   * CDORemoteSessionManager itself is {@link #isSubscribed() subscribed} the result is returned from a local
+   * cache for remote sessions, otherwise it is requested from the server each time this method is called.
+   *
+   * @since 4.29
+   */
+  public CDORemoteSession[] getRemoteSessions(String userID);
+
+  /**
+   * Returns the {@link CDORemoteSession remote session} with the given <code>sessionID</code>, if it is currently
+   * connected to the same repository as the {@link #getLocalSession() local session}, <code>null</code>
+   * otherwise. If this CDORemoteSessionManager itself is {@link #isSubscribed() subscribed} the result is
+   * returned from a local cache for remote sessions, otherwise it is requested from the server each time this
+   * method is called.
+   *
+   * @since 4.29
+   */
+  public CDORemoteSession getRemoteSession(int sessionID);
 
   /**
    * Returns <code>true</code> if this CDORemoteSessionManager is subscribed to changes in the set of remote sessions

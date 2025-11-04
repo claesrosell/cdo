@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, 2015, 2018 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2008-2013, 2015, 2018, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.tests.model3.File;
 import org.eclipse.emf.cdo.tests.model3.Image;
 import org.eclipse.emf.cdo.tests.model3.MetaRef;
 import org.eclipse.emf.cdo.tests.model3.Model3Package;
+import org.eclipse.emf.cdo.tests.model3.MultiLob;
 import org.eclipse.emf.cdo.tests.model3.NodeA;
 import org.eclipse.emf.cdo.tests.model3.NodeB;
 import org.eclipse.emf.cdo.tests.model3.NodeC;
@@ -212,6 +213,16 @@ public class Model3Switch<T>
     {
       File file = (File)theEObject;
       T result = caseFile(file);
+      if (result == null)
+      {
+        result = defaultCase(theEObject);
+      }
+      return result;
+    }
+    case Model3Package.MULTI_LOB:
+    {
+      MultiLob multiLob = (MultiLob)theEObject;
+      T result = caseMultiLob(multiLob);
       if (result == null)
       {
         result = defaultCase(theEObject);
@@ -461,6 +472,22 @@ public class Model3Switch<T>
    * @generated
    */
   public T caseFile(File object)
+  {
+    return null;
+  }
+
+  /**
+   * Returns the result of interpreting the object as an instance of '<em>Multi Lob</em>'.
+   * <!-- begin-user-doc -->
+   * This implementation returns null;
+   * returning a non-null result will terminate the switch.
+   * <!-- end-user-doc -->
+   * @param object the target of the switch.
+   * @return the result of interpreting the object as an instance of '<em>Multi Lob</em>'.
+   * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+   * @generated
+   */
+  public T caseMultiLob(MultiLob object)
   {
     return null;
   }

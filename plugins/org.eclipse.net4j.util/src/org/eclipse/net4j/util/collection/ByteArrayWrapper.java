@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2012, 2015, 2019, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2011, 2012, 2015, 2019, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * A wrapper for byte arrays that implements {@link #equals(Object)} and {@link #hashCode()} based on the array's contents.
+ *
  * @author Eike Stepper
  * @since 3.2
  */

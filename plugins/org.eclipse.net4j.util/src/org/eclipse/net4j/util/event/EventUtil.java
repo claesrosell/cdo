@@ -26,6 +26,11 @@ import java.util.function.Predicate;
 public final class EventUtil
 {
   /**
+   * @since 3.29
+   */
+  public static final String PRODUCT_GROUP_LISTENERS = "org.eclipse.net4j.util.event.listeners";
+
+  /**
    * @since 3.0
    */
   public static final IListener[] NO_LISTENERS = {};
@@ -187,6 +192,20 @@ public final class EventUtil
           return true;
         }
       }
+    }
+
+    return false;
+  }
+
+  /**
+   * @since 3.29
+   */
+  public static boolean fireEvent(Object notifier, IEvent event)
+  {
+    if (notifier instanceof Notifier)
+    {
+      ((Notifier)notifier).fireEvent(event);
+      return true;
     }
 
     return false;

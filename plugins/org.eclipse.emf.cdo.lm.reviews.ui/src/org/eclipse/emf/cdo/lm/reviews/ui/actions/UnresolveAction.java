@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.lm.client.ISystemManager;
 import org.eclipse.emf.cdo.lm.reviews.Topic;
 import org.eclipse.emf.cdo.lm.reviews.TopicStatus;
 import org.eclipse.emf.cdo.lm.reviews.ui.bundle.OM;
+import org.eclipse.emf.cdo.lm.reviews.util.ReviewsOperations;
 import org.eclipse.emf.cdo.lm.ui.actions.LMAction;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -35,6 +36,12 @@ public class UnresolveAction extends LMAction<Topic>
         null, //
         null, //
         topic);
+  }
+
+  @Override
+  public String getAuthorizableOperationID()
+  {
+    return ReviewsOperations.UNRESOLVE_TOPIC;
   }
 
   @Override

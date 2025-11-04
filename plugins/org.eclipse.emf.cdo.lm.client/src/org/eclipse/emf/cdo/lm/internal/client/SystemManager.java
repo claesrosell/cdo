@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022-2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.lm.internal.client;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranchRef;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.security.NoPermissionException;
 import org.eclipse.emf.cdo.common.util.CDOResourceNodeNotFoundException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
@@ -163,9 +164,9 @@ public final class SystemManager extends LMManager<CDORepository, CDORepositoryM
       return getDescriptor(systemName);
     }
 
-    if (object instanceof SystemElement)
+    SystemElement systemElement = EMFUtil.getNearestObject(object, SystemElement.class);
+    if (systemElement != null)
     {
-      SystemElement systemElement = (SystemElement)object;
       System system = systemElement.getSystem();
       String systemName = system.getName();
       return getDescriptor(systemName);
@@ -254,7 +255,21 @@ public final class SystemManager extends LMManager<CDORepository, CDORepositoryM
   @Override
   protected void explorerElementRemoved(CDORepository repository)
   {
-    removeDescriptor(repository);
+    RepositoryType repositoryType = RepositoryType.of(repository);
+    if (repositoryType == RepositoryType.SYSTEM)
+    {
+      removeDescriptor(repository);
+    }
+    else if (repositoryType == RepositoryType.MODULE)
+    {
+      for (ISystemDescriptor descriptor : getDescriptors())
+      {
+        if (((SystemDescriptor)descriptor).unregisterModuleRepository(repository))
+        {
+          break;
+        }
+      }
+    }
   }
 
   protected void repositoryConnected(CDORepository repository)

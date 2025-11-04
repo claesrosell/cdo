@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, 2015, 2018 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2008-2013, 2015, 2018, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -115,6 +115,15 @@ public interface Model3Factory extends EFactory
    * @generated
    */
   File createFile();
+
+  /**
+   * Returns a new object of class '<em>Multi Lob</em>'.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @return a new object of class '<em>Multi Lob</em>'.
+   * @generated
+   */
+  MultiLob createMultiLob();
 
   /**
    * Returns a new object of class '<em>Class With ID Attribute</em>'.

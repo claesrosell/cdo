@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2021-2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import org.eclipse.net4j.util.factory.ProductCreationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * @author Eike Stepper
@@ -56,13 +57,24 @@ public final class AuthorizableOperationFactory extends Factory
 
   public static AuthorizableOperation[] getAuthorizableOperations(IManagedContainer container)
   {
+    return getAuthorizableOperations(container, null);
+  }
+
+  /**
+   * @since 3.28
+   */
+  public static AuthorizableOperation[] getAuthorizableOperations(IManagedContainer container, Predicate<AuthorizableOperation> filter)
+  {
     Set<String> operationIDs = container.getFactoryTypes(PRODUCT_GROUP);
     List<AuthorizableOperation> operations = new ArrayList<>();
 
     for (String operationID : operationIDs)
     {
       AuthorizableOperation operation = container.getElementOrNull(PRODUCT_GROUP, operationID, NO_DESCRIPTION);
-      CollectionUtil.addNotNull(operations, operation);
+      if (filter == null || filter.test(operation))
+      {
+        CollectionUtil.addNotNull(operations, operation);
+      }
     }
 
     return operations.toArray(new AuthorizableOperation[operations.size()]);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017, 2019-2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2012-2017, 2019-2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -341,8 +341,9 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     CDOLockOwner lockOwner = readCDOLockOwner();
     List<CDOLockDelta> lockDeltas = readCDOLockDeltas();
     List<CDOLockState> lockStates = readCDOLockStates();
+    boolean isAdministrative = readBoolean();
 
-    return CDOLockUtil.createLockChangeInfo(branchPoint, lockOwner, lockDeltas, lockStates);
+    return CDOLockUtil.createLockChangeInfo(branchPoint, lockOwner, lockDeltas, lockStates, isAdministrative);
   }
 
   @Override
@@ -597,7 +598,8 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     if (value instanceof CDOLob<?>)
     {
       CDOLob<?> lob = (CDOLob<?>)value;
-      CDOLobUtil.setStore(getLobStore(), lob);
+      CDOLobStore lobStore = getLobStore();
+      CDOLobUtil.setStore(lobStore, lob);
     }
 
     return value;

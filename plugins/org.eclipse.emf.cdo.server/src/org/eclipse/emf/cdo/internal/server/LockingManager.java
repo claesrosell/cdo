@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2013, 2015, 2016, 2019-2022 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2011-2013, 2015, 2016, 2019-2022, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,12 +23,14 @@ import org.eclipse.emf.cdo.common.lock.CDOLockDelta;
 import org.eclipse.emf.cdo.common.lock.CDOLockOwner;
 import org.eclipse.emf.cdo.common.lock.CDOLockState;
 import org.eclipse.emf.cdo.common.lock.CDOLockUtil;
+import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants.UnitOpcode;
 import org.eclipse.emf.cdo.common.revision.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 import org.eclipse.emf.cdo.common.revision.CDORevisionProvider;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
-import org.eclipse.emf.cdo.server.IRepository;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ISessionManager;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -49,6 +51,7 @@ import org.eclipse.emf.cdo.spi.server.InternalView;
 import org.eclipse.net4j.util.CheckUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.WrappedException;
+import org.eclipse.net4j.util.collection.CollectionUtil;
 import org.eclipse.net4j.util.collection.ConcurrentArray;
 import org.eclipse.net4j.util.concurrent.Access;
 import org.eclipse.net4j.util.concurrent.RWOLockManager;
@@ -59,6 +62,9 @@ import org.eclipse.net4j.util.event.EventUtil;
 import org.eclipse.net4j.util.event.IListener;
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
+import org.eclipse.net4j.util.lifecycle.LifecycleException;
+import org.eclipse.net4j.util.lifecycle.LifecycleState;
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.options.IOptionsContainer;
 import org.eclipse.net4j.util.registry.HashMapRegistry;
 import org.eclipse.net4j.util.registry.IRegistry;
@@ -75,6 +81,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -160,6 +167,12 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
   public void setRepository(InternalRepository repository)
   {
     this.repository = repository;
+  }
+
+  @Override
+  public Object getLockKey(CDOID id)
+  {
+    return getLockKey(id, null);
   }
 
   @Override
@@ -506,16 +519,16 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
   {
     super.doActivate();
 
+    InternalCDOBranch mainBranch = repository.getBranchManager().getMainBranch();
+
     if (repository.isSupportingBranches())
     {
-      lockKeyCreator = (id, branch) -> CDOIDUtil.createIDAndBranch(id, branch);
+      lockKeyCreator = (id, branch) -> CDOIDUtil.createIDAndBranch(id, branch == null ? mainBranch : branch);
       lockIDExtractor = key -> ((CDOIDAndBranch)key).getID();
       lockBranchExtractor = key -> ((CDOIDAndBranch)key).getBranch();
     }
     else
     {
-      InternalCDOBranch mainBranch = repository.getBranchManager().getMainBranch();
-
       lockKeyCreator = (id, branch) -> id;
       lockIDExtractor = key -> (CDOID)key;
       lockBranchExtractor = key -> mainBranch;
@@ -566,6 +579,60 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
     }
 
     throw new IllegalStateException("Store does not implement " + DurableLocking2.class.getSimpleName());
+  }
+
+  @Override
+  public Set<IView> getLockOwners(Object key, LockType... lockTypes)
+  {
+    LockState<Object, IView> lockState = getLockState(key);
+    if (lockState == null)
+    {
+      return Collections.emptySet();
+    }
+
+    Set<IView> result = new HashSet<>();
+
+    if (lockTypes.length == 0)
+    {
+      lockTypes = ALL_LOCK_TYPES;
+    }
+
+    for (LockType lockType : lockTypes)
+    {
+      switch (lockType)
+      {
+      case READ:
+        result.addAll(lockState.getReadLockOwners());
+        break;
+
+      case WRITE:
+        CollectionUtil.addNotNull(result, lockState.getWriteLockOwner());
+        break;
+
+      case OPTION:
+        CollectionUtil.addNotNull(result, lockState.getWriteOptionOwner());
+        break;
+      }
+    }
+
+    return result;
+  }
+
+  @Override
+  public IView getLockOwner(String durableLockingID)
+  {
+    IView view;
+    synchronized (openDurableViews)
+    {
+      view = openDurableViews.get(durableLockingID);
+    }
+
+    if (view == null)
+    {
+      view = durableViews.get(durableLockingID);
+    }
+
+    return view;
   }
 
   @Override
@@ -704,7 +771,7 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
   /**
    * @author Eike Stepper
    */
-  private final class DurableView extends PlatformObject implements IView, CDOCommonView.Options
+  private final class DurableView extends PlatformObject implements InternalView, CDOCommonView.Options
   {
     private final String durableLockingID;
 
@@ -728,6 +795,12 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
     public String getDurableLockingID()
     {
       return durableLockingID;
+    }
+
+    @Override
+    public void setDurableLockingID(String durableLockingID)
+    {
+      throw new UnsupportedOperationException();
     }
 
     @Override
@@ -798,13 +871,13 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
     }
 
     @Override
-    public IRepository getRepository()
+    public InternalRepository getRepository()
     {
       return LockingManager.this.getRepository();
     }
 
     @Override
-    public ISession getSession()
+    public InternalSession getSession()
     {
       return null;
     }
@@ -813,6 +886,103 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
     public void loadLob(CDOLobInfo info, Object outputStreamOrWriter) throws IOException
     {
       throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ExecutorService getExecutorService()
+    {
+      return null;
+    }
+
+    @Override
+    public void activate() throws LifecycleException
+    {
+      // Do nothing.
+    }
+
+    @Override
+    public Exception deactivate()
+    {
+      // Do nothing.
+      return null;
+    }
+
+    @Override
+    public LifecycleState getLifecycleState()
+    {
+      return LifecycleState.ACTIVE;
+    }
+
+    @Override
+    public boolean isActive()
+    {
+      return true;
+    }
+
+    @Override
+    public void setBranchPoint(CDOBranchPoint branchPoint)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void changeTarget(CDOBranchPoint branchPoint, List<CDOID> invalidObjects, List<CDORevisionDelta> allChangedObjects, List<CDOID> allDetachedObjects)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void subscribe(CDOID id)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void unsubscribe(CDOID id)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean hasSubscription(CDOID id)
+    {
+      return false;
+    }
+
+    @Override
+    public void clearChangeSubscription()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void doClose()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void inverseClose()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean openUnit(CDOID rootID, UnitOpcode opcode, CDORevisionHandler revisionHandler, OMMonitor monitor)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void closeUnit(CDOID rootID)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isInOpenUnit(CDOID id)
+    {
+      return false;
     }
 
     @Override
@@ -853,11 +1023,13 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
     @Override
     public void addListener(IListener listener)
     {
+      // Do nothing.
     }
 
     @Override
     public void removeListener(IListener listener)
     {
+      // Do nothing.
     }
 
     @Override
@@ -898,6 +1070,7 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
     @Override
     public void setLockNotificationEnabled(boolean enabled)
     {
+      throw new UnsupportedOperationException();
     }
   }
 
@@ -910,23 +1083,12 @@ public class LockingManager extends RWOLockManager<Object, IView> implements Int
     {
     }
 
-    private IView getView(String lockAreaID)
-    {
-      IView view = openDurableViews.get(lockAreaID);
-      if (view == null)
-      {
-        view = durableViews.get(lockAreaID);
-      }
-
-      return view;
-    }
-
     @Override
     public boolean handleLockArea(LockArea area)
     {
       String durableLockingID = area.getDurableLockingID();
 
-      IView view = getView(durableLockingID);
+      IView view = getLockOwner(durableLockingID);
       if (view != null)
       {
         LockingManager.super.unlock(view, null, null, ALL_LOCKS, null, null);

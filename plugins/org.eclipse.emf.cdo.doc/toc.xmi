@@ -18,6 +18,7 @@
     <extensionPoints name="viewProviders"/>
     <productGroups id="org.eclipse.emf.cdo.annotationValidators" name="CDO Annotation Validators" description=""/>
     <productGroups id="org.eclipse.emf.cdo.conflictHandlers" name="CDO Conflict Handlers" description=""/>
+    <productGroups id="org.eclipse.emf.cdo.operationAuthorizers" name="CDO Operation Authorizers" description=""/>
     <productGroups id="org.eclipse.emf.cdo.resourceSetClassNameProviders" name="CDO Resource Set Class Name Providers" description=""/>
   </article:Plugin>
   <article:Plugin name="org.eclipse.emf.cdo.admin" label="CDO Model Repository Client Admin Support">
@@ -81,6 +82,7 @@
     <packages name="org.eclipse.emf.cdo.spi.common.protocol"/>
     <packages name="org.eclipse.emf.cdo.spi.common.revision"/>
     <packages name="org.eclipse.emf.cdo.spi.common.util"/>
+    <productGroups id="org.eclipse.emf.cdo.common.util.fingerPrinters" name="Finger Printers" description=""/>
     <productGroups id="org.eclipse.emf.cdo.common.ResourceSetConfigurers" name="Resource Set Configurers" description=""/>
     <productGroups id="org.eclipse.emf.cdo.common.model.typeHandlers" name="Type Handlers" description=""/>
     <productGroups id="org.eclipse.emf.cdo.common.util.uriHandlers" name="URI Handlers" description=""/>
@@ -151,6 +153,7 @@
   </article:Plugin>
   <article:Plugin name="org.eclipse.emf.cdo.lm.server" label="CDO Model Repository Lifecycle Management Server">
     <packages name="org.eclipse.emf.cdo.lm.server"/>
+    <productGroups id="org.eclipse.emf.cdo.lm.server.baselineBranchPointProviders" name="CDO Baseline Branch-Point Providers " description=""/>
     <productGroups id="org.eclipse.emf.cdo.lm.server.lifecycleManagers" name="CDO Lifecycle Managers" description=""/>
   </article:Plugin>
   <article:Plugin name="org.eclipse.emf.cdo.lm.ui" label="CDO Model Repository Lifecycle Management UI"/>
@@ -197,7 +200,9 @@
     <packages name="org.eclipse.emf.cdo.server.db"/>
     <packages name="org.eclipse.emf.cdo.server.db.mapping"/>
     <extensionPoints name="mappingStrategies"/>
-    <productGroups id="org.eclipse.emf.cdo.server.db.typeMappingProviders" name="CDO Type Mapping Providers" description=""/>
+    <productGroups id="org.eclipse.emf.cdo.server.db.modelEvolutionSupports" name="%productGroup.modelEvolutionSupports" description=""/>
+    <productGroups id="org.eclipse.emf.cdo.server.db.modelLoaders" name="CDO DB Model Loaders" description=""/>
+    <productGroups id="org.eclipse.emf.cdo.server.db.typeMappingProviders" name="CDO DB Type Mapping Providers" description=""/>
   </article:Plugin>
   <article:Plugin name="org.eclipse.emf.cdo.server.embedded" label="CDO Model Repository Server Embedded Support">
     <packages name="org.eclipse.emf.cdo.server.embedded"/>

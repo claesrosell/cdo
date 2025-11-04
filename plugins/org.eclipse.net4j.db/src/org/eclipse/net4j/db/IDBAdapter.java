@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013, 2016, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2013, 2016, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -157,6 +157,26 @@ public interface IDBAdapter
    * @since 4.2
    */
   public String sqlModifyField(IDBField field);
+
+  /**
+   * @since 4.13
+   */
+  public String sqlCharIndex(Object substring, Object string);
+
+  /**
+   * @since 4.13
+   */
+  public String sqlSubstring(Object string, Object startIndex, Object length);
+
+  /**
+   * @since 4.13
+   */
+  public String sqlSubstring(Object string, Object startIndex);
+
+  /**
+   * @since 4.13
+   */
+  public String sqlConcat(Object... strings);
 
   /**
    * @deprecated As of 4.2 no longer supported because of IP issues for external build dependencies (the vendor driver libs).

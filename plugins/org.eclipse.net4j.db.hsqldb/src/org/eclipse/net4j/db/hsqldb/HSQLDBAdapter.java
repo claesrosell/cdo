@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2013, 2019, 2021 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2008-2013, 2019, 2021, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -106,5 +106,11 @@ public class HSQLDBAdapter extends DBAdapter
   {
     String sqlState = ex.getSQLState();
     return "42501".equals(sqlState);
+  }
+
+  @Override
+  protected String sqlCharIndexFunction()
+  {
+    return "LOCATE";
   }
 }

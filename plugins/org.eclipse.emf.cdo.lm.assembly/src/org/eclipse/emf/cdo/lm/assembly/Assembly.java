@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2022, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,9 @@
 package org.eclipse.emf.cdo.lm.assembly;
 
 import org.eclipse.emf.cdo.etypes.ModelElement;
+import org.eclipse.emf.cdo.lm.assembly.impl.AssemblyImpl;
+import org.eclipse.emf.cdo.lm.modules.ModuleDefinition;
+import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -81,9 +84,22 @@ public interface Assembly extends ModelElement
 
   public boolean compareTo(Assembly newAssembly, DeltaHandler handler);
 
+  /**
+   * @since 1.1
+   */
+  public ModuleDefinition toModuleDefinition();
+
   default void sortModules()
   {
     ECollections.sort(getModules(), AssemblyModule.COMPARATOR);
+  }
+
+  /**
+   * @since 1.1
+   */
+  public static Assembly of(CDOView view)
+  {
+    return view == null ? null : (Assembly)view.properties().get(AssemblyImpl.PROP_ASSEMBLY);
   }
 
   /**
