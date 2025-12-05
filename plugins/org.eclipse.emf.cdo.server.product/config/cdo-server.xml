@@ -216,6 +216,9 @@
       <!-- Maximum number of store accessors (JDBC connections) to keep in the writer pool. The default value is 15.  -->
       <property name="writerPoolCapacity" value="20"/>
 
+      <!-- Whether to compress the bytes of a package before storing them in the database. -->
+      <property name="zipPackageBytes" value="true"/>
+      
       <!-- Example for Mysql with 4 bytes per char: 
         <property name="externalRefsURIColumnType" value="VARCHAR"/>
         <property name="externalRefsURIColumnLength" value="768"/>
@@ -241,10 +244,15 @@
       <dbAdapter name="h2"/>
       <dataSource class="org.h2.jdbcx.JdbcDataSource"
         URL="jdbc:h2:/develop/cdo-master/h2/big;LOCK_TIMEOUT=10000;TRACE_LEVEL_FILE=0"/>
-      
-      <modelEvolutionSupport type="default" mode="evolve">
-        <modelLoader type="default"/>
-        <listener type="log"/>
+
+      <modelEvolutionSupport type="phased" rootFolder="C:/develop/cdo-master/h2" mode="migrate">
+        <contextManager type="folder" saveNewModels="true"/>
+        <changeDetector/>
+        <repositoryExporter binary="false"/>
+        <schemaMigrator deleteObsoleteMetaIDs="false"/>
+        <!-- <storeProcessor type="myExtraChecks" myExtraArg="bla"/> -->
+        <!-- <repositoryProcessor type="myExtraUpdates" myExtraArg="yadda"/> -->
+        <!-- <listener type="log" /> -->
       </modelEvolutionSupport>
       
       <!-- Example:

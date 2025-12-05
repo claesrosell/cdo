@@ -27,11 +27,11 @@ import org.eclipse.emf.cdo.server.IStoreAccessor.QueryXRefsContext;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
-import org.eclipse.emf.cdo.server.db.IModelEvolutionSupport.Context;
+import org.eclipse.emf.cdo.server.db.evolution.phased.Context;
+import org.eclipse.emf.cdo.server.db.evolution.phased.ISchemaMigration;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IFeatureMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
-import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.IObjectTypeMapper;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.server.internal.db.mapping.AbstractMappingStrategy;
@@ -95,7 +95,7 @@ import java.util.stream.Collectors;
  * @author Eike Stepper
  * @since 2.0
  */
-public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingStrategy implements IMappingStrategy.ModelEvolution
+public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingStrategy implements ISchemaMigration
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, AbstractHorizontalMappingStrategy.class);
 
@@ -262,14 +262,11 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
   }
 
   @Override
-  public boolean evolveModels(Context context, IDBStoreAccessor accessor) throws SQLException
+  public void migrateSchema(Context context, IDBStoreAccessor accessor) throws SQLException
   {
     ModelEvolutionHelper helper = new ModelEvolutionHelper(context);
-
-    boolean triggerCrashRecovery = false;
-    triggerCrashRecovery |= helper.evolveSchema();
-    triggerCrashRecovery |= helper.evolveUsedClasses(accessor);
-    return triggerCrashRecovery;
+    helper.evolveSchema();
+    helper.evolveUsedClasses(accessor);
   }
 
   @Override
@@ -654,7 +651,7 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
       @Override
       public PropertiesEvent fire()
       {
-        if (!EventUtil.fireEvent(context.getModelEvolutionSupport(), this))
+        if (!EventUtil.fireEvent(context.getSupport(), this))
         {
           fireEvent(this);
         }
@@ -665,7 +662,7 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
       @Override
       protected String formatEventName()
       {
-        return "ModelEvolutionEvent";
+        return "SchemaMigrationEvent";
       }
     };
 
@@ -675,13 +672,13 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
 
     }
 
-    public boolean evolveSchema() throws SQLException
+    public void evolveSchema() throws SQLException
     {
-      event.setType("StartingModelEvolution").fire();
+      event.setType("StartingSchemaMigration").fire();
 
       Holder<IDBSchemaTransaction> schemaTransactionHolder = new Holder<>(() -> {
         event.setType("OpeningSchemaTransaction").fire();
-        IDBSchemaTransaction schemaTransaction = context.getStore().getDatabase().openSchemaTransaction();
+        IDBSchemaTransaction schemaTransaction = context.getSupport().getStore().getDatabase().openSchemaTransaction();
         event.setType("OpenedSchemaTransaction").addProperty("schemaTransaction", schemaTransaction).fire();
         return schemaTransaction;
       });
@@ -690,45 +687,41 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
 
       try
       {
-        context.getStoredPackages().values().forEach(ePackage -> {
-          for (EClassifier eClassifier : ePackage.getEClassifiers())
+        context.getOldPackages().values().forEach(oldPackage -> {
+          for (EClassifier oldClassifier : oldPackage.getEClassifiers())
           {
-            if (eClassifier instanceof EClass)
+            if (oldClassifier instanceof EClass)
             {
-              EClass storedClass = (EClass)eClassifier;
+              EClass oldClass = (EClass)oldClassifier;
 
-              if (!isMapped(storedClass))
+              if (!isMapped(oldClass))
               {
                 // Only concrete classes can have tables in horizontal mapping.
                 continue;
               }
 
-              EClass registeredClass = context.getRegisteredElement(storedClass);
-              if (registeredClass == null)
+              EClass newClass = context.getNewElement(oldClass);
+              if (newClass == null || !isMapped(newClass))
               {
-                // Class has been removed -- not allowed.
-                throw new ModelEvolutionNotAllowedException("Class has been removed: " + EMFUtil.getFullyQualifiedName(storedClass));
+                // Class was removed or is no longer mapped.
+                continue;
               }
 
-              if (!isMapped(registeredClass))
+              EStructuralFeature[] addedFeatures = getAddedFeatures(oldClass, newClass);
+              if (addedFeatures.length == 0)
               {
-                // Class is no longer mapped -- not allowed.
-                throw new ModelEvolutionNotAllowedException("Class is no longer mapped: " + EMFUtil.getFullyQualifiedName(storedClass));
+                // No new features.
+                continue;
               }
 
-              EStructuralFeature[] addedFeatures = getAddedFeatures(context, storedClass, registeredClass);
-              if (addedFeatures.length != 0)
-              {
-                IClassMapping classMapping = doCreateClassMapping(storedClass);
-                String tableName = classMapping.getTable().getName();
-                IDBTable table = workingCopySupplier.get().getTable(tableName);
+              IClassMapping classMapping = doCreateClassMapping(oldClass);
+              String tableName = classMapping.getTable().getName();
+              IDBTable table = workingCopySupplier.get().getTable(tableName);
 
-                context.log("Creating new feature mappings for class " + EMFUtil.getFullyQualifiedName(storedClass) + " in table " + table + ": "
-                    + Arrays.stream(addedFeatures).map(EStructuralFeature::getName).collect(Collectors.joining(", ")));
+              context.log("Creating new feature mappings for class " + EMFUtil.getFullyQualifiedName(oldClass) + " in table " + table + ": "
+                  + Arrays.stream(addedFeatures).map(EStructuralFeature::getName).collect(Collectors.joining(", ")));
 
-                AbstractHorizontalClassMapping.createFeatureMappings(AbstractHorizontalMappingStrategy.this, //
-                    registeredClass, table, addedFeatures);
-              }
+              AbstractHorizontalClassMapping.createFeatureMappings(AbstractHorizontalMappingStrategy.this, newClass, table, addedFeatures);
             }
           }
         });
@@ -743,11 +736,9 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
       {
         schemaTransactionHolder.handleIfSet(IDBSchemaTransaction::close);
       }
-
-      return false;
     }
 
-    public boolean evolveUsedClasses(IDBStoreAccessor accessor) throws SQLException, ModelEvolutionNotAllowedException
+    public void evolveUsedClasses(IDBStoreAccessor accessor) throws SQLException
     {
       Map<EClass, String> usedClasses = new HashMap<>();
       Map<String, EObject> fromObjectsByURI = context.getElementMappings().getFromObjectsByURI();
@@ -765,7 +756,6 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
       }
 
       event.setType("EvolvedUsedClasses").fire();
-      return false;
     }
 
     private void evolveUsedClass(StatementBatcher batcher, Map<EClass, String> usedClasses, EClass usedClass)
@@ -777,7 +767,7 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
       // Change container IDs
       Map<Integer, Integer> containerChanges = new HashMap<>();
       context.handleFeatureIDChanges(usedClass, this::getContainerReferences, //
-          (storedFeatureID, registeredFeatureID) -> containerChanges.put(storedFeatureID, registeredFeatureID));
+          (oldFeatureID, newFeatureID) -> containerChanges.put(oldFeatureID, newFeatureID));
 
       if (!containerChanges.isEmpty())
       {
@@ -788,10 +778,10 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
       // Change opposite container IDs (containments with no navigable opposite).
       handleContainmentCandidates(usedClass, usedClasses.keySet(), (containerClass, containments) -> {
         Map<Integer, Integer> containmentChanges = new HashMap<>();
-        context.handleFeatureIDChanges(containerClass, ec -> containments, (storedFeatureID, registeredFeatureID) -> {
-          int fromID = InternalEObject.EOPPOSITE_FEATURE_BASE - storedFeatureID;
-          int toID = InternalEObject.EOPPOSITE_FEATURE_BASE - registeredFeatureID;
-          containmentChanges.put(fromID, toID);
+        context.handleFeatureIDChanges(containerClass, ec -> containments, (oldFeatureID, newFeatureID) -> {
+          int oldID = InternalEObject.EOPPOSITE_FEATURE_BASE - oldFeatureID;
+          int newID = InternalEObject.EOPPOSITE_FEATURE_BASE - newFeatureID;
+          containmentChanges.put(oldID, newID);
         });
 
         if (!containmentChanges.isEmpty())
@@ -808,9 +798,9 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
         EClassifier type = attribute.getEType();
         if (type instanceof EEnum)
         {
-          EEnum storedEnum = (EEnum)type;
+          EEnum oldEnum = (EEnum)type;
 
-          Map<Integer, Integer> changes = context.getEnumLiteralChanges(storedEnum);
+          Map<Integer, Integer> changes = context.getEnumLiteralChanges(oldEnum);
           if (!ObjectUtil.isEmpty(changes))
           {
             context.log("Adjusting enum literal IDs for attribute " + EMFUtil.getFullyQualifiedName(usedClass) + "." + attribute.getName());
@@ -825,30 +815,30 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
       event.setType("EvolvedUsedClass").fire().removeProperty("usedClass");
     }
 
-    private EStructuralFeature[] getAddedFeatures(Context context, EClass storedClass, EClass registeredClass)
+    private EStructuralFeature[] getAddedFeatures(EClass oldClass, EClass newClass)
     {
-      Set<EStructuralFeature> existingRegisteredFeatures = new HashSet<>();
+      Set<EStructuralFeature> existingNewFeatures = new HashSet<>();
 
-      for (EStructuralFeature storedFeature : CDOModelUtil.getClassInfo(storedClass).getAllPersistentFeatures())
+      for (EStructuralFeature oldFeature : CDOModelUtil.getClassInfo(oldClass).getAllPersistentFeatures())
       {
-        EStructuralFeature registeredFeature = context.getRegisteredElement(storedFeature);
-        if (registeredFeature != null)
+        EStructuralFeature newFeature = context.getNewElement(oldFeature);
+        if (newFeature != null)
         {
-          existingRegisteredFeatures.add(registeredFeature);
+          existingNewFeatures.add(newFeature);
         }
       }
 
-      List<EStructuralFeature> addedRegisteredFeatures = new ArrayList<>();
+      List<EStructuralFeature> addedNewFeatures = new ArrayList<>();
 
-      for (EStructuralFeature registeredFeature : CDOModelUtil.getClassInfo(registeredClass).getAllPersistentFeatures())
+      for (EStructuralFeature newFeature : CDOModelUtil.getClassInfo(newClass).getAllPersistentFeatures())
       {
-        if (!existingRegisteredFeatures.contains(registeredFeature))
+        if (!existingNewFeatures.contains(newFeature))
         {
-          addedRegisteredFeatures.add(registeredFeature);
+          addedNewFeatures.add(newFeature);
         }
       }
 
-      return addedRegisteredFeatures.toArray(new EStructuralFeature[0]);
+      return addedNewFeatures.toArray(new EStructuralFeature[0]);
     }
 
     private List<EStructuralFeature> getContainerReferences(EClass eClass)

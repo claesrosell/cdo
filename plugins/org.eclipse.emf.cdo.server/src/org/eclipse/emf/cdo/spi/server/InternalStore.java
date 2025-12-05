@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2012, 2016, 2019, 2020 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2012, 2016, 2019, 2020, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,24 +65,6 @@ public interface InternalStore extends IStore, ILifecycle
    * @since 4.0
    */
   public void setCreationTime(long creationTime);
-
-  /**
-   * Indication that a store needs to be restarted during the process of repository initialization.
-   * <p>
-   * Typically this exception is thrown by {@link IStore stores} that perform model evolution during initialization and
-   * need to be restarted to pick up the evolved models.
-   *
-   * @author Eike Stepper
-   * @since 4.25
-   */
-  public static final class RestartException extends RuntimeException
-  {
-    private static final long serialVersionUID = 1L;
-
-    public RestartException()
-    {
-    }
-  }
 
   /**
    * If the meaning of this type isn't clear, there really should be more of a description here...

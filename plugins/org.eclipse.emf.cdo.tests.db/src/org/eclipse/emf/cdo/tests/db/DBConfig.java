@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2017, 2019, 2020, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2011-2017, 2019, 2020, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@ package org.eclipse.emf.cdo.tests.db;
 import org.eclipse.emf.cdo.common.CDOCommonRepository.IDGenerationLocation;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
-import org.eclipse.emf.cdo.server.db.IModelEvolutionSupport;
+import org.eclipse.emf.cdo.server.db.evolution.IModelEvolutionSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.mapping.TypeMappingRegistry;

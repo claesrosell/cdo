@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2016, 2018-2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2016, 2018-2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,6 +94,8 @@ public abstract class AbstractOMTest extends TestCase
   };
 
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, AbstractOMTest.class);
+
+  private static final boolean PHYSICALLY_DELETE_FILES = OMPlatform.INSTANCE.isProperty("PHYSICALLY_DELETE_FILES", true);
 
   private static boolean consoleEnabled;
 
@@ -455,9 +457,12 @@ public abstract class AbstractOMTest extends TestCase
   {
     synchronized (filesToDelete)
     {
-      for (File file : filesToDelete)
+      if (PHYSICALLY_DELETE_FILES)
       {
-        IOUtil.delete(file);
+        for (File file : filesToDelete)
+        {
+          IOUtil.delete(file);
+        }
       }
 
       filesToDelete.clear();

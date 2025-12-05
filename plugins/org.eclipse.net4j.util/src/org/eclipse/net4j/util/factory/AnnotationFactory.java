@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -263,7 +263,9 @@ public class AnnotationFactory<PRODUCT> extends TreeFactory.ContainerAware
       {
         String factoryTypeAttribute = annotation.factoryTypeAttribute();
         String defaultFactoryType = annotation.defaultFactoryType();
-        typeFunction = elementConfig -> getElementType(elementConfig, factoryTypeAttribute, defaultFactoryType);
+        String factoryTypePrefix = annotation.factoryTypePrefix();
+        String factoryTypeSuffix = annotation.factoryTypeSuffix();
+        typeFunction = elementConfig -> getElementType(elementConfig, factoryTypeAttribute, defaultFactoryType, factoryTypePrefix, factoryTypeSuffix);
         elementConfigs = config.children(name);
       }
 
@@ -285,7 +287,20 @@ public class AnnotationFactory<PRODUCT> extends TreeFactory.ContainerAware
     }
   }
 
+  /**
+   * @deprecated As of 3.29, use {@link #getElementType(Tree, String, String, String, String)}.
+   */
+  @Deprecated
   protected String getElementType(Tree elementConfig, String factoryTypeAttribute, String defaultFactoryType)
+  {
+    return getElementType(elementConfig, factoryTypeAttribute, defaultFactoryType, "", "");
+  }
+
+  /**
+   * @since 3.29
+   */
+  protected String getElementType(Tree elementConfig, String factoryTypeAttribute, String defaultFactoryType, //
+      String factoryTypePrefix, String factoryTypeSuffix)
   {
     String type = elementConfig.attribute(factoryTypeAttribute);
     if (type == null)
@@ -298,7 +313,7 @@ public class AnnotationFactory<PRODUCT> extends TreeFactory.ContainerAware
       throw new IllegalStateException("Factory type is not specified");
     }
 
-    return type;
+    return StringUtil.safe(factoryTypePrefix) + type + StringUtil.safe(factoryTypeSuffix);
   }
 
   protected Object createElement(String productGroup, String type, String descriptionAttribute, Tree elementConfig, boolean singleton)
@@ -399,6 +414,16 @@ public class AnnotationFactory<PRODUCT> extends TreeFactory.ContainerAware
     public String factoryTypeAttribute() default FACTORY_TYPE_ATTRIBUTE;
 
     public String defaultFactoryType() default "";
+
+    /**
+     * @since 3.29
+     */
+    public String factoryTypePrefix() default "";
+
+    /**
+     * @since 3.29
+     */
+    public String factoryTypeSuffix() default "";
 
     public String descriptionAttribute() default "";
 

@@ -22,7 +22,8 @@ import org.eclipse.emf.cdo.server.IStoreAccessor.QueryXRefsContext;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
-import org.eclipse.emf.cdo.server.db.IModelEvolutionSupport.Context;
+import org.eclipse.emf.cdo.server.db.evolution.phased.Context;
+import org.eclipse.emf.cdo.server.db.evolution.phased.ISchemaMigration;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.db.mapping.ILobRefsUpdater;
@@ -51,7 +52,7 @@ import java.util.Set;
 /**
  * @author Eike Stepper
  */
-public class HorizontalMappingStrategy extends Lifecycle implements IMappingStrategy.ModelEvolution, ILobRefsUpdater
+public class HorizontalMappingStrategy extends Lifecycle implements ISchemaMigration, ILobRefsUpdater
 {
   private Map<String, String> properties;
 
@@ -63,6 +64,7 @@ public class HorizontalMappingStrategy extends Lifecycle implements IMappingStra
   {
   }
 
+  @Override
   public IMappingStrategy getDelegate()
   {
     return delegate;
@@ -242,14 +244,16 @@ public class HorizontalMappingStrategy extends Lifecycle implements IMappingStra
   }
 
   @Override
-  public boolean evolveModels(Context context, IDBStoreAccessor accessor) throws SQLException
+  public void migrateSchema(Context context, IDBStoreAccessor accessor) throws SQLException
   {
-    if (delegate instanceof ModelEvolution)
+    if (delegate instanceof ISchemaMigration)
     {
-      return ((ModelEvolution)delegate).evolveModels(context, accessor);
+      ((ISchemaMigration)delegate).migrateSchema(context, accessor);
     }
-
-    throw new ModelEvolutionNotSupportedException();
+    else
+    {
+      throw new SchemaMigrationNotSupportedException();
+    }
   }
 
   @Override

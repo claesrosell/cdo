@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2009, 2011, 2012, 2015, 2016, 2019, 2020, 2022, 2024 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2007-2009, 2011, 2012, 2015, 2016, 2019, 2020, 2022, 2024, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -310,6 +310,28 @@ public final class LifecycleUtil
   }
 
   /**
+   * @since 3.29
+   */
+  public static void triggerReactivation()
+  {
+    triggerReactivation(null);
+  }
+
+  /**
+   * Triggers a reactivation of the given lifecycle.
+   * <p>
+   * The given lifecycle must be in the {@link Lifecycle#doActivate()} method or in the {@link Lifecycle#doAfterActivate()} method.
+   * Calling this method will abort the activation and cause the lifecycle to be deactivated and then activated again.
+   * If the lifecycle is not in one of the two methods, unexpected behavior will occur.
+   *
+   * @since 3.29
+   */
+  public static void triggerReactivation(Object lifecycle)
+  {
+    throw ReactivationTrigger.createFor(lifecycle);
+  }
+
+  /**
    * @since 2.0
    */
   public static <T> T delegateLifecycle(ClassLoader loader, T pojo, Class<?> pojoInterface, ILifecycle delegate)
@@ -506,6 +528,32 @@ public final class LifecycleUtil
       @SuppressWarnings("unchecked")
       T proxy = (T)Proxy.newProxyInstance(loader, interfaces, h);
       return proxy;
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   * @since 3.29
+   */
+  public static final class ReactivationTrigger extends Error
+  {
+    private static final long serialVersionUID = 1L;
+
+    private final Object lifecycle;
+
+    public ReactivationTrigger(Object lifecycle)
+    {
+      this.lifecycle = lifecycle;
+    }
+
+    public boolean isFor(Object lifecycle)
+    {
+      return this.lifecycle == null || this.lifecycle == lifecycle;
+    }
+
+    public static ReactivationTrigger createFor(Object lifecycle)
+    {
+      return new ReactivationTrigger(lifecycle);
     }
   }
 }

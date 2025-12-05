@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, 2015, 2016, 2019, 2023 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2012, 2013, 2015, 2016, 2019, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -269,6 +269,7 @@ public class SecurityItemProviderAdapterFactory extends SecurityAdapterFactory
    * @generated
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   protected ClassPermissionItemProvider classPermissionItemProvider;
 
   /**
@@ -296,6 +297,7 @@ public class SecurityItemProviderAdapterFactory extends SecurityAdapterFactory
    * @generated
    */
   @Deprecated
+  @SuppressWarnings("deprecation")
   protected PackagePermissionItemProvider packagePermissionItemProvider;
 
   /**
@@ -322,6 +324,7 @@ public class SecurityItemProviderAdapterFactory extends SecurityAdapterFactory
    * <!-- end-user-doc -->
    * @generated
    */
+  @SuppressWarnings("deprecation")
   @Deprecated
   protected ResourcePermissionItemProvider resourcePermissionItemProvider;
 
