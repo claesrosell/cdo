@@ -21,8 +21,6 @@ import org.eclipse.emf.cdo.tests.AbstractCDOTest;
 import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
 import org.eclipse.emf.cdo.tests.config.impl.ConfigTest.CleanRepositoriesAfter;
 import org.eclipse.emf.cdo.tests.config.impl.ConfigTest.CleanRepositoriesBefore;
-import org.eclipse.emf.cdo.tests.config.impl.ConfigTest.Requires;
-import org.eclipse.emf.cdo.tests.config.impl.ConfigTest.Skips;
 import org.eclipse.emf.cdo.tests.config.impl.RepositoryConfig;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
@@ -51,8 +49,8 @@ import java.util.concurrent.CountDownLatch;
  *
  * @author Eike Stepper
  */
-@Requires({ IRepositoryConfig.CAPABILITY_AUDITING, "DB.ranges" })
-@Skips(IRepositoryConfig.CAPABILITY_BRANCHING)
+// @Requires({ IRepositoryConfig.CAPABILITY_AUDITING, "DB.ranges" })
+// @Skips(IRepositoryConfig.CAPABILITY_BRANCHING)
 @CleanRepositoriesBefore(reason = "Instrumented repository")
 @CleanRepositoriesAfter(reason = "Instrumented repository")
 public class Bugzilla_486458c_Test extends AbstractCDOTest
