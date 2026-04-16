@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2010-2016, 2018, 2019, 2021, 2023, 2025, 2026 Eike Stepper (Loehne, Germany) and others.
+ * Copyright (c) 2010-2016, 2018, 2019, 2021, 2023, 2025 Eike Stepper (Loehne, Germany) and others.
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License 2.0
- * which is available at https://www.eclipse.org/legal/epl-2.0
- *
- * SPDX-License-Identifier: EPL-2.0
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
@@ -24,8 +23,6 @@ import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
-import org.eclipse.emf.cdo.common.revision.CDORevisionManager.Request.Config;
-import org.eclipse.emf.cdo.common.revision.CDORevisionManager.Request.Config.LookupMode;
 import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
@@ -33,45 +30,31 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryXRefsContext;
-import org.eclipse.emf.cdo.server.StoreThreadLocal;
-import org.eclipse.emf.cdo.server.db.IBatchingContext;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.db.mapping.IBranchDeletionSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
-import org.eclipse.emf.cdo.server.db.mapping.IClassMappingUnitSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
-import org.eclipse.emf.cdo.server.db.mapping.IListMappingBatchingSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
-import org.eclipse.emf.cdo.server.db.mapping.IListMappingUnitSupport;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
-import org.eclipse.emf.cdo.server.internal.db.DBStore;
-import org.eclipse.emf.cdo.server.db.mapping.ListDeltaWork;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.commit.CDOChangeSetSegment;
 import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
-import org.eclipse.emf.cdo.spi.common.revision.StubCDORevision;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 
 import org.eclipse.net4j.db.Batch;
-import org.eclipse.net4j.db.BatchedStatement;
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBPreparedStatement;
 import org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability;
-import org.eclipse.net4j.db.IDBResultSet;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.ImplementationError;
-import org.eclipse.net4j.util.WrappedException;
-import org.eclipse.net4j.util.collection.MoveableList;
-import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
-import org.eclipse.net4j.util.concurrent.TimeoutRuntimeException;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -79,31 +62,21 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Eike Stepper
  * @author Stefan Winkler
  * @since 3.0
  */
-public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapping
-    implements IClassMappingAuditSupport, IClassMappingDeltaSupport, IBranchDeletionSupport, IClassMappingUnitSupport
+public class HeadHorizontalBranchingClassMapping extends AbstractHorizontalClassMapping
+    implements IClassMappingAuditSupport, IClassMappingDeltaSupport, IBranchDeletionSupport
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalBranchingClassMapping.class);
-
-  private static final Config UNCHUNKED_REVISION_SCAN_CONFIG = new Config(LookupMode.CACHE_THEN_LOADER, CDORevision.DEPTH_NONE, false, CDORevision.UNCHUNKED);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HeadHorizontalBranchingClassMapping.class);
 
   private String sqlInsertAttributes;
 
@@ -115,13 +88,11 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
 
   private String sqlSelectAttributesByVersion;
 
-  private String sqlSelectUnitByTime;
-
   private String sqlReviseAttributes;
 
   private String sqlRawDeleteAttributes;
 
-  public HorizontalBranchingClassMapping(AbstractHorizontalMappingStrategy mappingStrategy, EClass eClass)
+  public HeadHorizontalBranchingClassMapping(AbstractHorizontalMappingStrategy mappingStrategy, EClass eClass)
   {
     super(mappingStrategy, eClass);
   }
@@ -139,18 +110,48 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     IDBTable table = getTable();
 
     // ----------- Select Revision ---------------------------
-    String[] strings = buildSQLSelects(false);
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT "); //$NON-NLS-1$
+    builder.append(versionField);
+    builder.append(", "); //$NON-NLS-1$
+    builder.append(createdField);
+    builder.append(", "); //$NON-NLS-1$
+    builder.append(revisedField);
+    builder.append(", "); //$NON-NLS-1$
+    builder.append(resourceField);
+    builder.append(", "); //$NON-NLS-1$
+    builder.append(containerField);
+    builder.append(", "); //$NON-NLS-1$
+    builder.append(featureField);
+    appendTypeMappingNames(builder, getValueMappings());
+    appendFieldNames(builder, getUnsettableFields());
+    appendFieldNames(builder, getListSizeFields());
+    builder.append(" FROM "); //$NON-NLS-1$
+    builder.append(table);
+    builder.append(" WHERE "); //$NON-NLS-1$
+    builder.append(idField);
+    builder.append("=? AND "); //$NON-NLS-1$
+    builder.append(branchField);
+    builder.append("=? AND ("); //$NON-NLS-1$
+    String sqlSelectAttributesPrefix = builder.toString();
+    builder.append(revisedField);
+    builder.append("=0)"); //$NON-NLS-1$
+    sqlSelectCurrentAttributes = builder.toString();
 
-    sqlSelectCurrentAttributes = strings[0];
-    sqlSelectAttributesByTime = strings[1];
-    sqlSelectAttributesByVersion = strings[2];
+    builder = new StringBuilder(sqlSelectAttributesPrefix);
+    builder.append(createdField);
+    builder.append("<=? AND ("); //$NON-NLS-1$
+    builder.append(revisedField);
+    builder.append("=0 OR "); //$NON-NLS-1$
+    builder.append(revisedField);
+    builder.append(">=?))"); //$NON-NLS-1$
+    sqlSelectAttributesByTime = builder.toString();
 
-    InternalRepository repository = (InternalRepository)getMappingStrategy().getStore().getRepository();
-    if (repository.isSupportingUnits())
-    {
-      strings = buildSQLSelects(true);
-      sqlSelectUnitByTime = strings[2];
-    }
+    builder = new StringBuilder(sqlSelectAttributesPrefix);
+    builder.append("ABS("); //$NON-NLS-1$
+    builder.append(versionField);
+    builder.append(")=?)"); //$NON-NLS-1$
+    sqlSelectAttributesByVersion = builder.toString();
 
     // ----------- Insert Attributes -------------------------
     builder = new StringBuilder();
@@ -230,101 +231,6 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     builder.append(revisedField);
   }
 
-  private String[] buildSQLSelects(boolean forUnits)
-  {
-    String[] strings = new String[3];
-
-    StringBuilder builder = new StringBuilder();
-    builder.append("SELECT "); //$NON-NLS-1$
-
-    if (forUnits)
-    {
-      builder.append(idField);
-      builder.append(", "); //$NON-NLS-1$
-    }
-
-    builder.append(versionField);
-    builder.append(", "); //$NON-NLS-1$
-    builder.append(createdField);
-    builder.append(", "); //$NON-NLS-1$
-    builder.append(revisedField);
-    builder.append(", "); //$NON-NLS-1$
-    builder.append(resourceField);
-    builder.append(", "); //$NON-NLS-1$
-    builder.append(containerField);
-    builder.append(", "); //$NON-NLS-1$
-    builder.append(featureField);
-    appendTypeMappingNames(builder, getValueMappings());
-    appendFieldNames(builder, getUnsettableFields());
-    appendFieldNames(builder, getListSizeFields());
-    builder.append(" FROM "); //$NON-NLS-1$
-    builder.append(table);
-
-    if (forUnits)
-    {
-      UnitMappingTable units = ((DBStore)getMappingStrategy().getStore()).getUnitMappingTable();
-
-      builder.append(", "); //$NON-NLS-1$
-      builder.append(units);
-      builder.append(" WHERE "); //$NON-NLS-1$
-      builder.append(idField);
-      builder.append("="); //$NON-NLS-1$
-      builder.append(units);
-      builder.append("."); //$NON-NLS-1$
-      builder.append(units.elem());
-      builder.append(" AND "); //$NON-NLS-1$
-      builder.append(units);
-      builder.append("."); //$NON-NLS-1$
-      builder.append(units.unit());
-    }
-    else
-    {
-      builder.append(" WHERE "); //$NON-NLS-1$
-      builder.append(idField);
-    }
-
-    builder.append("=? AND "); //$NON-NLS-1$
-    builder.append(branchField);
-    builder.append("=? AND ("); //$NON-NLS-1$
-
-    String sqlSelectAttributesPrefix = builder.toString();
-
-    builder.append(revisedField);
-    builder.append("=0)"); //$NON-NLS-1$
-
-    if (forUnits)
-    {
-      builder.append(" ORDER BY "); //$NON-NLS-1$
-      builder.append(idField);
-    }
-
-    strings[0] = builder.toString();
-
-    builder = new StringBuilder(sqlSelectAttributesPrefix);
-    builder.append(createdField);
-    builder.append("<=? AND ("); //$NON-NLS-1$
-    builder.append(revisedField);
-    builder.append("=0 OR "); //$NON-NLS-1$
-    builder.append(revisedField);
-    builder.append(">=?))"); //$NON-NLS-1$
-
-    if (forUnits)
-    {
-      builder.append(" ORDER BY "); //$NON-NLS-1$
-      builder.append(idField);
-    }
-
-    strings[1] = builder.toString();
-
-    builder = new StringBuilder(sqlSelectAttributesPrefix);
-    builder.append("ABS("); //$NON-NLS-1$
-    builder.append(versionField);
-    builder.append(")=?)"); //$NON-NLS-1$
-    strings[2] = builder.toString();
-
-    return strings;
-  }
-
   @Override
   public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
@@ -353,7 +259,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
       }
 
       // Read singleval-attribute table always (even without modeled attributes!)
-      success = readValuesFromStatement(stmt, revision, accessor, listChunk);
+      success = readValuesFromStatement(stmt, revision, accessor);
     }
     catch (SQLException ex)
     {
@@ -367,10 +273,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     // Read multival tables only if revision exists
     if (success && revision.getVersion() >= CDOBranchVersion.FIRST_VERSION)
     {
-      if (!readLists(accessor, revision, listChunk))
-      {
-        throw new DBException(new IllegalStateException("Incomplete list values in a fully loaded revision")); //$NON-NLS-1$
-      }
+      readLists(accessor, revision, listChunk);
     }
 
     return success;
@@ -390,7 +293,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
       stmt.setInt(3, revision.getVersion());
 
       // Read singleval-attribute table always (even without modeled attributes!)
-      success = readValuesFromStatement(stmt, revision, accessor, listChunk);
+      success = readValuesFromStatement(stmt, revision, accessor);
     }
     catch (SQLException ex)
     {
@@ -404,10 +307,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     // Read multival tables only if revision exists
     if (success)
     {
-      if (!readLists(accessor, revision, listChunk))
-      {
-        throw new DBException(new IllegalStateException("Incomplete list values in a fully loaded revision")); //$NON-NLS-1$
-      }
+      readLists(accessor, revision, listChunk);
     }
 
     return success;
@@ -582,135 +482,6 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     finally
     {
       DBUtil.close(stmt);
-    }
-  }
-
-  @Override
-  public void writeRevisions(IDBStoreAccessor accessor, InternalCDORevision[] revisions, boolean firstRevision, boolean revise, OMMonitor monitor)
-  {
-    boolean allFirstRevisions = firstRevision;
-
-    for (InternalCDORevision revision : revisions)
-    {
-      allFirstRevisions &= revision.getVersion() == CDORevision.FIRST_VERSION;
-    }
-
-    if (!allFirstRevisions)
-    {
-      monitor.begin(revisions.length);
-
-      try
-      {
-        // Branching revision setup has per-revision first-version and history semantics. Preserve the established
-        // synchronous ordering for revisions that are not all initial versions.
-        for (InternalCDORevision revision : revisions)
-        {
-          writeRevision(accessor, revision, firstRevision, revise, monitor.fork());
-        }
-      }
-      finally
-      {
-        monitor.done();
-      }
-
-      return;
-    }
-
-    super.writeRevisions(accessor, revisions, firstRevision, revise, monitor);
-  }
-
-  @Override
-  protected void writeValues(IDBStoreAccessor accessor, InternalCDORevision[] revisions)
-  {
-    if (revisions.length == 0)
-    {
-      return;
-    }
-
-    IBatchingContext batchingContext = accessor.getBatchingContext();
-    BatchedStatement stmt = batchingContext.createStatement(sqlInsertAttributes, ReuseProbability.HIGH, "BranchingClass.attribute"); //$NON-NLS-1$
-    boolean discarded = false;
-
-    try
-    {
-      IIDHandler idHandler = getMappingStrategy().getStore().getIDHandler();
-
-      for (InternalCDORevision revision : revisions)
-      {
-        setInsertValues(idHandler, stmt, revision);
-        stmt.executeUpdate();
-      }
-
-      batchingContext.flushPhase();
-      validateExactlyOne(stmt, revisions.length);
-      batchingContext.recordDiagnosticCounter("BranchingClass.attributeRows", revisions.length); //$NON-NLS-1$
-    }
-    catch (SQLException ex)
-    {
-      batchingContext.discardStatement(stmt);
-      discarded = true;
-      throw new DBException(ex);
-    }
-    finally
-    {
-      if (!discarded)
-      {
-        batchingContext.releaseStatement(stmt);
-      }
-    }
-  }
-
-  private void setInsertValues(IIDHandler idHandler, PreparedStatement stmt, InternalCDORevision revision) throws SQLException
-  {
-    int column = 1;
-    idHandler.setCDOID(stmt, column++, revision.getID());
-    stmt.setInt(column++, revision.getVersion());
-    stmt.setInt(column++, revision.getBranch().getID());
-    stmt.setLong(column++, revision.getTimeStamp());
-    stmt.setLong(column++, revision.getRevised());
-    idHandler.setCDOID(stmt, column++, revision.getResourceID());
-    idHandler.setCDOID(stmt, column++, (CDOID)revision.getContainerID());
-    stmt.setInt(column++, revision.getContainerFeatureID());
-
-    int isSetCol = column + getValueMappings().size();
-
-    for (ITypeMapping mapping : getValueMappings())
-    {
-      EStructuralFeature feature = mapping.getFeature();
-      if (feature.isUnsettable())
-      {
-        if (revision.getValue(feature) == null)
-        {
-          stmt.setBoolean(isSetCol++, false);
-          mapping.setDefaultValue(stmt, column++);
-          continue;
-        }
-
-        stmt.setBoolean(isSetCol++, true);
-      }
-
-      mapping.setValueFromRevision(stmt, column++, revision);
-    }
-
-    Map<EStructuralFeature, IDBField> listSizeFields = getListSizeFields();
-    if (listSizeFields != null)
-    {
-      column = isSetCol;
-      for (EStructuralFeature feature : listSizeFields.keySet())
-      {
-        CDOList list = revision.getListOrNull(feature);
-        stmt.setInt(column++, list == null ? UNSET_LIST : list.size());
-      }
-    }
-  }
-
-  private void validateExactlyOne(BatchedStatement stmt, int expectedCount)
-  {
-    int knownResult = stmt.getTotalResult();
-    int unknownResultCount = stmt.getUnknownResultCount();
-    if (knownResult > expectedCount || unknownResultCount == 0 && knownResult != expectedCount || knownResult + unknownResultCount < expectedCount)
-    {
-      throw new DBException("Unexpected branching attribute insert result"); //$NON-NLS-1$
     }
   }
 
@@ -1033,7 +804,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
         if (version >= CDOBranchVersion.FIRST_VERSION)
         {
           CDOBranchVersion branchVersion = revisionBranch.getVersion(version);
-          InternalCDORevision revision = (InternalCDORevision)revisionManager.getRevisionByVersion(id, branchVersion, UNCHUNKED_REVISION_SCAN_CONFIG);
+          InternalCDORevision revision = (InternalCDORevision)revisionManager.getRevisionByVersion(id, branchVersion, CDORevision.UNCHUNKED, true);
 
           if (!handler.handleRevision(revision))
           {
@@ -1240,108 +1011,9 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     }
   }
 
-  @Override
-  protected void writeRevisionDeltasSingle(IDBStoreAccessor accessor, InternalCDORevisionDelta[] deltas, long created, OMMonitor monitor)
-  {
-    boolean shallCopyOnBranch = ((HorizontalBranchingMappingStrategyWithRanges)getMappingStrategy()).shallCopyOnBranch();
-    if (shallCopyOnBranch)
-    {
-      CDOBranch commitBranch = accessor.getTransaction().getBranch();
-
-      for (InternalCDORevisionDelta delta : deltas)
-      {
-        if (commitBranch != delta.getBranch())
-        {
-          super.writeRevisionDeltasSingle(accessor, deltas, created, monitor);
-          return;
-        }
-      }
-    }
-
-    List<IListMapping> mappings = getListMappings();
-    List<FeatureDeltaWriter> writers = new ArrayList<>();
-    monitor.begin(1 + mappings.size());
-
-    try
-    {
-      OMMonitor revisionMonitor = monitor.fork();
-      revisionMonitor.begin(deltas.length);
-
-      try
-      {
-        for (InternalCDORevisionDelta delta : deltas)
-        {
-          FeatureDeltaWriter writer = new FeatureDeltaWriter();
-          writer.deferListDeltas = true;
-          writer.process(accessor, delta, created);
-          writers.add(writer);
-
-          revisionMonitor.worked();
-        }
-      }
-      finally
-      {
-        revisionMonitor.done();
-      }
-
-      for (IListMapping mapping : mappings)
-      {
-        List<ListDeltaWork> work = new ArrayList<>();
-
-        for (FeatureDeltaWriter writer : writers)
-        {
-          for (ListDeltaWork item : writer.listDeltaWork)
-          {
-            if (item.getDelta().getFeature() == mapping.getFeature())
-            {
-              work.add(item);
-            }
-          }
-        }
-
-        OMMonitor listMonitor = monitor.fork();
-
-        if (work.isEmpty())
-        {
-          listMonitor.worked();
-        }
-        else if (mapping instanceof IListMappingBatchingSupport)
-        {
-          ((IListMappingBatchingSupport)mapping).processDeltas(accessor, work.toArray(new ListDeltaWork[work.size()]), listMonitor);
-        }
-        else
-        {
-          listMonitor.begin(work.size());
-
-          try
-          {
-            IListMappingDeltaSupport deltaSupport = (IListMappingDeltaSupport)mapping;
-
-            for (ListDeltaWork item : work)
-            {
-              deltaSupport.processDelta(accessor, item.getID(), item.getBranchId(), item.getOldVersion(), item.getNewVersion(), item.getCreated(),
-                  item.getDelta());
-
-              listMonitor.worked();
-            }
-          }
-          finally
-          {
-            listMonitor.done();
-          }
-        }
-      }
-    }
-    finally
-    {
-      monitor.done();
-    }
-  }
-
   private void doCopyOnBranch(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created, OMMonitor monitor)
   {
     monitor.begin(2);
-
     try
     {
       InternalRepository repository = (InternalRepository)accessor.getStore().getRepository();
@@ -1358,9 +1030,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
       InternalCDORevision newRevision = oldRevision.copy();
       newRevision.adjustForCommit(accessor.getTransaction().getBranch(), created);
       delta.applyTo(newRevision);
-
       monitor.worked();
-
       writeRevision(accessor, newRevision, false, true, monitor.fork());
     }
     finally
@@ -1381,10 +1051,6 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     private int newVersion;
 
     private InternalCDORevision newRevision;
-
-    private boolean deferListDeltas;
-
-    private final List<ListDeltaWork> listDeltaWork = new ArrayList<>();
 
     @Override
     protected void doProcess(InternalCDORevisionDelta delta)
@@ -1431,15 +1097,8 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     {
       delta.applyTo(newRevision);
 
-      if (deferListDeltas)
-      {
-        listDeltaWork.add(new ListDeltaWork(id, targetBranch.getID(), oldVersion, newVersion, created, delta));
-      }
-      else
-      {
-        IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(delta.getFeature());
-        listMapping.processDelta(accessor, id, targetBranch.getID(), oldVersion, newVersion, created, delta);
-      }
+      IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(delta.getFeature());
+      listMapping.processDelta(accessor, id, targetBranch.getID(), oldVersion, newVersion, created, delta);
     }
 
     @Override
@@ -1448,235 +1107,4 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
       delta.applyTo(newRevision);
     }
   }
-
-  @Override
-  public void readUnitRevisions(IDBStoreAccessor accessor, CDOBranchPoint branchPoint, CDOID rootID, CDORevisionHandler revisionHandler) throws SQLException
-  {
-    DBStore store = (DBStore)getMappingStrategy().getStore();
-    InternalRepository repository = store.getRepository();
-
-    CDOBranchPoint head = repository.getBranchManager().getMainBranch().getHead();
-    EClass eClass = getEClass();
-    long timeStamp = branchPoint.getTimeStamp();
-
-    IIDHandler idHandler = store.getIDHandler();
-    IDBPreparedStatement stmt = null;
-
-    int jdbcFetchSize = store.getJDBCFetchSize();
-    int oldFetchSize = -1;
-
-    final long start1 = TRACER_UNITS.isEnabled() ? System.currentTimeMillis() : CDOBranchPoint.UNSPECIFIED_DATE;
-
-    try
-    {
-      stmt = accessor.getDBConnection().prepareStatement(sqlSelectUnitByTime, ReuseProbability.MEDIUM);
-      idHandler.setCDOID(stmt, 1, rootID);
-      stmt.setLong(2, timeStamp);
-      stmt.setLong(3, timeStamp);
-
-      AsnychronousListFiller listFiller = new AsnychronousListFiller(accessor, timeStamp, rootID, revisionHandler);
-      ConcurrencyUtil.execute(repository, listFiller);
-
-      oldFetchSize = stmt.getFetchSize();
-      stmt.setFetchSize(jdbcFetchSize);
-      IDBResultSet resultSet = stmt.executeQuery();
-
-      for (;;)
-      {
-        InternalCDORevision revision = store.createRevision(eClass, null);
-        revision.setBranchPoint(head);
-
-        if (!readValuesFromResultSet(resultSet, idHandler, revision, true))
-        {
-          break;
-        }
-
-        listFiller.schedule(revision);
-      }
-
-      final long start2 = start1 != CDOBranchPoint.UNSPECIFIED_DATE ? System.currentTimeMillis() : start1;
-
-      listFiller.await();
-
-      if (start1 != CDOBranchPoint.UNSPECIFIED_DATE)
-      {
-        TRACER_UNITS.format("Read {0} revisions of unit {1}: {2} millis + {3} millis", eClass.getName(), rootID, start2 - start1,
-            System.currentTimeMillis() - start2);
-      }
-    }
-    finally
-    {
-      if (oldFetchSize != -1)
-      {
-        stmt.setFetchSize(oldFetchSize);
-      }
-
-      DBUtil.close(stmt);
-    }
-  }
-
-  private class AsnychronousListFiller implements Runnable
-  {
-    private final BlockingQueue<InternalCDORevision> queue = new LinkedBlockingQueue<>();
-
-    private final CountDownLatch latch = new CountDownLatch(1);
-
-    private final IDBStoreAccessor accessor;
-
-    private final long timeStamp;
-
-    private final CDOID rootID;
-
-    private final DBStore store;
-
-    private final IIDHandler idHandler;
-
-    private final IListMappingUnitSupport[] listMappings;
-
-    private final ResultSet[] resultSets;
-
-    private final CDORevisionHandler revisionHandler;
-
-    private Throwable exception;
-
-    public AsnychronousListFiller(IDBStoreAccessor accessor, long timeStamp, CDOID rootID, CDORevisionHandler revisionHandler)
-    {
-      this.accessor = accessor;
-      this.timeStamp = timeStamp;
-      this.rootID = rootID;
-      this.revisionHandler = revisionHandler;
-
-      store = (DBStore)accessor.getStore();
-      idHandler = store.getIDHandler();
-
-      List<IListMapping> tmp = getListMappings();
-      int size = tmp.size();
-
-      listMappings = new IListMappingUnitSupport[size];
-      resultSets = new ResultSet[size];
-
-      int i = 0;
-      for (IListMapping listMapping : tmp)
-      {
-        listMappings[i++] = (IListMappingUnitSupport)listMapping;
-      }
-    }
-
-    public void schedule(InternalCDORevision revision)
-    {
-      queue.offer(revision);
-    }
-
-    public void await() throws SQLException
-    {
-      // Schedule an end marker revision.
-      schedule(new StubCDORevision(getEClass()));
-
-      try
-      {
-        latch.await();
-      }
-      catch (InterruptedException ex)
-      {
-        throw new TimeoutRuntimeException();
-      }
-      finally
-      {
-        for (ResultSet resultSet : resultSets)
-        {
-          if (resultSet != null)
-          {
-            Statement statement = resultSet.getStatement();
-            DBUtil.close(statement);
-          }
-        }
-      }
-
-      if (exception instanceof RuntimeException)
-      {
-        throw (RuntimeException)exception;
-      }
-
-      if (exception instanceof Error)
-      {
-        throw (Error)exception;
-      }
-
-      if (exception instanceof SQLException)
-      {
-        throw (SQLException)exception;
-      }
-
-      if (exception instanceof Exception)
-      {
-        throw WrappedException.wrap((Exception)exception);
-      }
-    }
-
-    @Override
-    public void run()
-    {
-      StoreThreadLocal.setAccessor(accessor);
-
-      try
-      {
-        while (store.isActive())
-        {
-          InternalCDORevision revision = queue.poll(1, TimeUnit.SECONDS);
-          if (revision == null)
-          {
-            continue;
-          }
-
-          if (revision instanceof StubCDORevision)
-          {
-            return;
-          }
-
-          readUnitEntries(revision);
-        }
-      }
-      catch (Throwable ex)
-      {
-        exception = ex;
-      }
-      finally
-      {
-        latch.countDown();
-        StoreThreadLocal.remove();
-      }
-    }
-
-    private void readUnitEntries(InternalCDORevision revision) throws SQLException
-    {
-      CDOID id = revision.getID();
-
-      for (int i = 0; i < listMappings.length; i++)
-      {
-        IListMappingUnitSupport listMapping = listMappings[i];
-        EStructuralFeature feature = listMapping.getFeature();
-
-        MoveableList<Object> list = revision.getListOrNull(feature);
-        if (list != null)
-        {
-          int size = list.size();
-          if (size != 0)
-          {
-            if (resultSets[i] == null)
-            {
-              resultSets[i] = listMapping.queryUnitEntries(accessor, idHandler, timeStamp, rootID);
-            }
-
-            listMapping.readUnitEntries(resultSets[i], idHandler, id, list);
-          }
-        }
-      }
-
-      synchronized (revisionHandler)
-      {
-        revisionHandler.handleRevision(revision);
-      }
-    }
-  }
-
 }

@@ -86,7 +86,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalNonAuditClassMapping.class);
 
-  private static final ContextTracer TRACER_UNITS = new ContextTracer(OM.DEBUG_UNITS, HorizontalAuditClassMapping.class);
+  private static final ContextTracer TRACER_UNITS = new ContextTracer(OM.DEBUG_UNITS, HorizontalNonAuditClassMapping.class);
 
   private String sqlSelectAllObjectIDs;
 
