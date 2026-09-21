@@ -46,8 +46,8 @@ import org.eclipse.emf.cdo.server.db.mapping.IListMappingBatchingSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingUnitSupport;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
-import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.db.mapping.ListDeltaWork;
+import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.commit.CDOChangeSetSegment;
@@ -102,6 +102,8 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     implements IClassMappingAuditSupport, IClassMappingDeltaSupport, IBranchDeletionSupport, IClassMappingUnitSupport
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalBranchingClassMapping.class);
+
+  private static final ContextTracer TRACER_UNITS = new ContextTracer(OM.DEBUG_UNITS, HorizontalBranchingClassMapping.class);
 
   private static final Config UNCHUNKED_REVISION_SCAN_CONFIG = new Config(LookupMode.CACHE_THEN_LOADER, CDORevision.DEPTH_NONE, false, CDORevision.UNCHUNKED);
 
@@ -1486,7 +1488,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
         InternalCDORevision revision = store.createRevision(eClass, null);
         revision.setBranchPoint(head);
 
-        if (!readValuesFromResultSet(resultSet, idHandler, revision, true))
+        if (!readValuesFromResultSet(resultSet, idHandler, revision, true, CDORevision.UNCHUNKED))
         {
           break;
         }

@@ -22,12 +22,14 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
 import org.eclipse.emf.cdo.server.db.IBatchingContext;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingBatchingSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingUnitSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.db.mapping.ListDeltaWork;
+import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.internal.db.DBStoreAccessor;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.AbstractBasicListTableMapping.AbstractListDeltaWriter.NewListSizeResult;
@@ -39,6 +41,8 @@ import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBPreparedStatement;
 import org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability;
 import org.eclipse.net4j.db.ddl.IDBTable;
+import org.eclipse.net4j.util.collection.MoveableList;
+import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -87,7 +91,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
   private String sqlShiftUpFinalIndex;
 
   private String sqlSelectUnitEntries;
-  
+
   private AbstractHorizontalClassMapping classMapping;
 
   public NonAuditListTableMapping(IMappingStrategy mappingStrategy, EClass eClass, EStructuralFeature feature)
@@ -629,7 +633,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
       list.set(i, value);
     }
   }
-  
+
   private final class NonAuditDeltaBatch
   {
     private final IDBStoreAccessor accessor;

@@ -348,7 +348,7 @@ public class FirstAttemptHorizontalBranchingClassMapping extends AbstractHorizon
       }
 
       // Read singleval-attribute table always (even without modeled attributes!)
-      success = readValuesFromStatement(stmt, revision, accessor);
+      success = readValuesFromStatement(stmt, revision, accessor, listChunk);
     }
     catch (SQLException ex)
     {
@@ -382,7 +382,7 @@ public class FirstAttemptHorizontalBranchingClassMapping extends AbstractHorizon
       stmt.setInt(3, revision.getVersion());
 
       // Read singleval-attribute table always (even without modeled attributes!)
-      success = readValuesFromStatement(stmt, revision, accessor);
+      success = readValuesFromStatement(stmt, revision, accessor, listChunk);
     }
     catch (SQLException ex)
     {
@@ -1234,7 +1234,7 @@ public class FirstAttemptHorizontalBranchingClassMapping extends AbstractHorizon
         InternalCDORevision revision = store.createRevision(eClass, null);
         revision.setBranchPoint(head);
 
-        if (!readValuesFromResultSet(resultSet, idHandler, revision, true))
+        if (!readValuesFromResultSet(resultSet, idHandler, revision, true, CDORevision.UNCHUNKED))
         {
           break;
         }

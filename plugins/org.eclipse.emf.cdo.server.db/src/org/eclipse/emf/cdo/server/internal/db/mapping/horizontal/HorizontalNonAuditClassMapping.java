@@ -27,10 +27,12 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryXRefsContext;
+import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.server.db.IBatchingContext;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingUnitSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingBatchingSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
@@ -1105,7 +1107,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
         InternalCDORevision revision = store.createRevision(eClass, null);
         revision.setBranchPoint(head);
 
-        if (!readValuesFromResultSet(resultSet, idHandler, revision, true))
+        if (!readValuesFromResultSet(resultSet, idHandler, revision, true, CDORevision.UNCHUNKED))
         {
           break;
         }
